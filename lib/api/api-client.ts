@@ -4,9 +4,9 @@ import Cookies from 'js-cookie'
 
 
 
-export const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:8080/api'
-const ACCESS_TOKEN_KEY = 'll_access_token'
-const REFRESH_TOKEN_KEY = 'll_refresh_token'
+export const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:8081/api'
+const ACCESS_TOKEN_KEY = 'access_token'
+const REFRESH_TOKEN_KEY = 'refresh_token'
 
 export const tokenStorage = {
     getAccess: () => Cookies.get(ACCESS_TOKEN_KEY) ?? null,
