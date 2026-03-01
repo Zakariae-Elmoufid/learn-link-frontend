@@ -4,11 +4,11 @@ import {apiClient} from "../api-client";
 export const profileService = {
     create: (data: UserProfileCreate, imageFile?: File) => {
         const form = new FormData()
-        form.append('bio', data.bio)
+        if (data.bio) form.append('bio', data.bio)
         form.append('firstName', data.firstName)
         form.append('lastName', data.lastName)
         form.append('academicLevel', data.academicLevel)
-        data.subjectIds.forEach((id) => form.append('subjectIds', String(id)))
+        data.studentSubjectIds.forEach((id) => form.append('studentSubjectIds', String(id)))
         if (imageFile) form.append('image', imageFile)
         return apiClient.post<UserProfileResponse>('/profile', form, {
             headers: { 'Content-Type': 'multipart/form-data' },

@@ -1,7 +1,9 @@
 import {useAuthStore} from "../stores";
-import {  useMutation } from '@tanstack/react-query'
-import {LoginRequest, RegisterRequest} from "../lib/api/types";
+import { useMutation, useQuery } from '@tanstack/react-query'
+import {LoginRequest, RegisterRequest, UserProfileCreate} from "../lib/api/types";
 import {authService} from "../lib/api/services/auth.service";
+import {profileService} from "../lib/api/services/profile.service";
+import {subjectService} from "../lib/api/services/subject.service";
 import toast from "react-hot-toast";
 import {tokenStorage} from "../lib/api/api-client";
 
@@ -47,4 +49,32 @@ export function useVerifyEmail() {
     })
 }
 
+export function useCreateProfile() {
+    return useMutation({
+        mutationFn: ({ data, imageFile }: { data: UserProfileCreate; imageFile?: File }) =>
+            profileService.create(data, imageFile),
+        onSuccess: () => {
+            toast.success('Profile created successfully!')
+        },
+        onError: (error: any) => {
+            const message = error?.response?.data?.message || 'Failed to create profile'
+            toast.error(message)
+        },
+    })
+}
 
+export function useMyProfile() {
+    return useQuery({
+        queryKey: ['profile', 'me'],
+        queryFn: () => profileService.getMe(),
+        retry: false,
+    })
+}
+
+export function useSubjects() {
+    return useQuery({
+        queryKey: ['subjects'],
+        queryFn: () => subjectService.getAll(),
+        staleTime: 10 * 60 * 1000, // 10 minutes
+    })
+}

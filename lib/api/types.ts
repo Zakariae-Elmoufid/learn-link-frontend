@@ -68,15 +68,14 @@ export interface RefreshTokenRequest {
 }
 
 export interface UserProfileCreate {
-    bio: string
+    bio?: string
     firstName: string
     lastName: string
     academicLevel: string
-    subjectIds: number[]
+    studentSubjectIds: number[]
 }
 
 export interface Subject {
     id: number
     name: string
-    code: string
 }
