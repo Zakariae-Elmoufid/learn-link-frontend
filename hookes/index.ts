@@ -23,3 +23,15 @@ export function useLogin() {
     })
 }
 
+export function useRegister() {
+    return useMutation({
+        mutationFn: (data: RegisterRequest) => authService.register(data),
+        onSuccess: () => {
+            toast.success('Registration successful! Please check your email to verify your account.')
+        },
+        onError: (error: any) => {
+            const message = error?.response?.data?.message || 'Registration failed. Please try again.'
+            toast.error(message)
+        },
+    })
+}

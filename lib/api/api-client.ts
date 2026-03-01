@@ -65,7 +65,7 @@ apiClient.interceptors.response.use(
             const refreshToken = tokenStorage.getRefresh()
             if (!refreshToken) {
                 tokenStorage.clearTokens()
-                window.location.href = '/login'
+                window.location.href = '/auth/login'
                 return Promise.reject(error)
             }
             try {
@@ -79,7 +79,7 @@ apiClient.interceptors.response.use(
             } catch (refreshError) {
                 processQueue(refreshError as AxiosError, null)
                 tokenStorage.clearTokens()
-                window.location.href = '/login'
+                window.location.href = '/auth/login'
                 return Promise.reject(refreshError)
             } finally {
                 isRefreshing = false
