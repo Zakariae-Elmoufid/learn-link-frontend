@@ -40,7 +40,7 @@ export default function RegisterPage() {
     async function onSubmit(data: FormValues) {
         const { confirmPassword, ...registerData } = data
         await register.mutateAsync(registerData)
-        router.push('/auth/login?registered=true')
+        router.push('/auth/verify-email')
     }
 
     return (

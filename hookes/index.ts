@@ -35,3 +35,16 @@ export function useRegister() {
         },
     })
 }
+export function useVerifyEmail() {
+    return useMutation({
+        mutationFn: (code: string) => authService.verifyEmail(code),
+        onSuccess: (message) => {
+            toast.success(message || 'Account activated!')
+        },
+        onError: () => {
+            toast.error('Invalid or expired verification code')
+        },
+    })
+}
+
+
