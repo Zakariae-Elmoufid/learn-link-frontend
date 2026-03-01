@@ -1,6 +1,6 @@
 import type { NextConfig } from "next";
 
-const nextConfig = {
+const nextConfig: NextConfig = {
     images: {
         remotePatterns: [
             { protocol: 'https', hostname: '**.learnlink.app' },
@@ -8,8 +8,7 @@ const nextConfig = {
             { protocol: 'https', hostname: 'images.unsplash.com' },
         ],
     },
-    experimental: {
         typedRoutes: true,
-    },
-}
+    };
+
 export default nextConfig;
