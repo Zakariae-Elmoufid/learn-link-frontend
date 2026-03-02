@@ -36,10 +36,8 @@ export default function LoginPage() {
     // Check if user profile exists
     try {
       await profileService.getById(auth.user.id);
-      // Profile exists, redirect to dashboard
-      router.push("student/dashboard");
+      router.push("/student");
     } catch {
-      // Profile doesn't exist, redirect to profile setup
       router.push("/profile/setup");
     }
   }

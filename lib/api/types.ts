@@ -54,11 +54,11 @@ export interface RefreshTokenRequest {
     firstName: string
     lastName: string
     bio: string
-    academicLevel: string
-    avatarUrl?: string
+        academicLevel: string
+        profilePictureUrl?: string
+        studentSubjects: Subject[]
     coverUrl?: string
     subjectIds: number[]
-    subjects: Subject[]
     postsCount: number
     connectionsCount: number
     badgesCount: number
