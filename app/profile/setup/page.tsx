@@ -101,7 +101,7 @@ export default function FinalizeProfilePage() {
             },
             imageFile: imageFile || undefined,
         })
-        router.push('/student/dashboard')
+        router.push('/student')
     }
 
     return (

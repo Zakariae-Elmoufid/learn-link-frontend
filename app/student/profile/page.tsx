@@ -9,13 +9,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useMyProfile, useUpdateProfile, useSubjects } from "../../../hookes";
 import { Camera, X, Plus, Save, Loader2 } from "lucide-react";
 
-const ACADEMIC_LEVELS = [
-  "HIGH_SCHOOL",
-  "BACHELOR",
-  "BACHELOR",
-  "PHD",
-  "OTHER"
-];
+const ACADEMIC_LEVELS = ["HIGH_SCHOOL", "BACHELOR", "BACHELOR", "PHD", "OTHER"];
 
 const schema = z.object({
   firstName: z.string().min(1, "First name is required"),
@@ -82,7 +76,7 @@ export default function ProfilePage() {
 
   const removeImage = () => {
     setImageFile(null);
-    setImagePreview(profile?.profilePictureUrl   || null);
+    setImagePreview(profile?.profilePictureUrl || null);
     if (fileInputRef.current) {
       fileInputRef.current.value = "";
     }
@@ -243,16 +237,16 @@ export default function ProfilePage() {
               Academic Level
             </label>
             <select
-                className="input"
-                defaultValue={ profile?.academicLevel }
-                {...register("academicLevel")}
+              className="input"
+              defaultValue={profile?.academicLevel}
+              {...register("academicLevel")}
             >
               <option value="">Select your level</option>
 
               {ACADEMIC_LEVELS.map((level) => (
-                  <option key={level} value={level}>
-                    {level}
-                  </option>
+                <option key={level} value={level}>
+                  {level}
+                </option>
               ))}
             </select>
             {errors.academicLevel && (

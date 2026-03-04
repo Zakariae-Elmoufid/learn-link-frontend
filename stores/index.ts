@@ -4,6 +4,9 @@ import { AuthUser } from '../lib/api/types'
 import { create } from 'zustand'
 import { tokenStorage } from '../lib/api/api-client'
 
+// Re-export message store
+export { useMessageStore } from './message.store'
+
 interface AuthState {
     user: AuthUser | null
     isAuthenticated: boolean
