@@ -29,7 +29,7 @@ export function ConversationList({
 
     // Filter conversations based on search query
     const filteredConversations = conversations.filter((conv) =>
-        conv.participantName?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        conv.participant.firstName?.toLowerCase().includes(searchQuery.toLowerCase()) ||
         conv.lastMessage?.toLowerCase().includes(searchQuery.toLowerCase())
     )
 

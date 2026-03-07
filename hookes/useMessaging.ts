@@ -5,7 +5,7 @@ import {
   useInfiniteQuery,
 } from "@tanstack/react-query";
 import { messageService } from "../lib/api/services/message.service";
-import { SendMessageRequest, MessageResponse } from "../lib/api/types";
+import { SendMessageRequest } from "../lib/api/types";
 import { useMessageStore } from "../stores";
 import toast from "react-hot-toast";
 import { useEffect } from "react";

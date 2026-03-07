@@ -20,7 +20,6 @@ export function useWebSocket() {
     const isAuthenticated = useAuthStore((s) => s.isAuthenticated)
     const user = useAuthStore((s) => s.user)
     
-    // Track connection status reactively
     const [isConnected, setIsConnected] = useState(false)
     
     const addMessage = useMessageStore((s) => s.addMessage)
