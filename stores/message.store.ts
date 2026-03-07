@@ -61,16 +61,26 @@ export const useMessageStore = create<MessageState>()((set, get) => ({
             ),
         })),
 
-    setActiveConversation: (participantId) => set({ activeConversationId: participantId }),
+    setActiveConversation: (participantId) => {
+        console.log("[Store] setActiveConversation:", participantId)
+        set({ activeConversationId: participantId })
+    },
 
-    setMessages: (messages) => set({ messages }),
+    setMessages: (messages) => {
+        console.log("[Store] setMessages called with", messages.length, "messages")
+        set({ messages })
+    },
 
     addMessage: (message) =>
         set((state) => {
             // Check if message already exists
             const exists = state.messages.some((m) => m.id === message.id)
-            if (exists) return state
+            if (exists) {
+                console.log("[Store] Message already exists, skipping:", message.id)
+                return state
+            }
 
+            console.log("[Store] Adding new message:", message.id, "Total:", state.messages.length + 1)
             return {
                 messages: [...state.messages, message],
             }
