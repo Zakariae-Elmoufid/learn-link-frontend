@@ -110,17 +110,37 @@ export function ChatWindow({
               <ArrowLeft className="h-5 w-5" />
             </button>
           )}
-          <Avatar
-            src={conversation.participantAvatar}
-            name={
-              conversation.participantName ||
-              `User ${conversation.participantId}`
-            }
-            size="md"
-          />
+          <div className="h-16 w-16 rounded-full bg-slate-100 dark:bg-slate-800 flex items-center justify-center overflow-hidden border-4 border-white dark:border-slate-700 shadow-lg">
+
+          {
+            conversation.participant.profilePictureUrl ? (
+                <img
+                    className="h-full w-full object-cover"
+
+                    src={conversation.participant.profilePictureUrl}
+                    alt={
+                      conversation.participant.firstName && conversation.participant.lastName
+                          ? conversation.participant.firstName + " " + conversation.participant.lastName
+                          : `User ${conversation.participantId}`
+                    }
+                />
+            ) : (
+                <Avatar
+                    src={conversation.participantAvatar}
+                    name={
+                      conversation.participant.firstName && conversation.participant.lastName
+                          ? conversation.participant.firstName + " " + conversation.participant.lastName
+                          : `User ${conversation.participantId}`
+                    }
+                    size="md"
+                />
+            )
+          }
+          </div>
+
           <div>
             <h3 className="font-semibold text-slate-900 dark:text-white">
-              {conversation.participantName ||
+              {conversation.participant.firstName +" "+conversation.participant.lastName  ||
                 `User ${conversation.participantId}`}
             </h3>
             <p className="text-xs text-slate-500 dark:text-slate-400">Online</p>

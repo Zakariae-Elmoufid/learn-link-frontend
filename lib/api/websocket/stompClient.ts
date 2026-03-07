@@ -33,7 +33,6 @@ export const setWebSocketCallbacks = (newCallbacks: WebSocketCallbacks) => {
 
 export const createWebSocketClient = (token?: string): Client => {
     if (client?.active) {
-        console.log("[WS] Client already active, returning existing client")
         return client
     }
 
@@ -43,13 +42,9 @@ export const createWebSocketClient = (token?: string): Client => {
         throw new Error("No authentication token available for WebSocket connection")
     }
 
-    // Get base URL without /api suffix for WebSocket endpoint
-    // Backend WebSocket is at /chat, not /api/chat
     const wsBaseUrl = API_BASE_URL.replace('/api', '')
     const wsUrl = `${wsBaseUrl}/chat?token=${accessToken.substring(0, 20)}...`
-    console.log("[WS] Creating WebSocket client, URL:", wsUrl)
-    console.log("[WS] API_BASE_URL:", API_BASE_URL)
-    console.log("[WS] wsBaseUrl:", wsBaseUrl)
+
     
     // Create SockJS - token passed via query param for HandshakeInterceptor
     const socket = new SockJS(`${wsBaseUrl}/chat?token=${accessToken}`)
@@ -63,8 +58,7 @@ export const createWebSocketClient = (token?: string): Client => {
         },
 
         reconnectDelay: 5000,
-        heartbeatIncoming: 4000,
-        heartbeatOutgoing: 4000,
+
 
         debug: (str) => {
             // Always log for debugging

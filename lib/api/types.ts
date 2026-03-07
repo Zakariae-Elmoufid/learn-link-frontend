@@ -101,7 +101,7 @@ export interface MessageResponse {
 
 export interface ConversationResponse {
     participantId: number
-    participantName?: string
+    participant: UserProfileResponse
     participantAvatar?: string
     lastMessage: string
     lastMessageAt: string
