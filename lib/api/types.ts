@@ -54,11 +54,11 @@ export interface RefreshTokenRequest {
     firstName: string
     lastName: string
     bio: string
-    academicLevel: string
-    avatarUrl?: string
+        academicLevel: string
+        profilePictureUrl?: string
+        studentSubjects: Subject[]
     coverUrl?: string
     subjectIds: number[]
-    subjects: Subject[]
     postsCount: number
     connectionsCount: number
     badgesCount: number
@@ -68,15 +68,88 @@ export interface RefreshTokenRequest {
 }
 
 export interface UserProfileCreate {
-    bio: string
+    bio?: string
     firstName: string
     lastName: string
     academicLevel: string
-    subjectIds: number[]
+    studentSubjectIds: number[]
 }
 
 export interface Subject {
     id: number
     name: string
-    code: string
+}
+
+// ─── Messaging ───────────────────────────────────────────────────────────────
+
+export type MessageType = 'TEXT' | 'IMAGE' | 'FILE' | 'LINK'
+export type MessageStatus = 'SENT' | 'DELIVERED' | 'READ'
+
+export interface MessageResponse {
+    id: number
+    senderId: number
+    recipientId: number
+    content: string
+    messageType: MessageType
+    status: MessageStatus
+    attachmentUrl?: string
+    attachmentName?: string
+    readAt?: string
+    createdAt: string
+    updatedAt: string
+}
+
+export interface ConversationResponse {
+    participantId: number
+    participantName?: string
+    participantAvatar?: string
+    lastMessage: string
+    lastMessageAt: string
+    unreadCount: number
+}
+
+export interface SendMessageRequest {
+    recipientId: number
+    content: string
+    type?: MessageType
+    attachmentUrl?: string
+    attachmentName?: string
+}
+
+export interface ChatMessageRequest {
+    recipientId: number
+    content: string
+    type?: MessageType
+    attachmentUrl?: string
+    attachmentName?: string
+}
+
+export interface TypingIndicator {
+    recipientId: number
+    typing: boolean
+}
+
+export interface TypingNotification {
+    senderId: number
+    typing: boolean
+    timestamp: string
+}
+
+export interface ReadReceiptRequest {
+    messageId: number
+}
+
+export interface ReadReceiptNotification {
+    messageId: number
+    readerId: number
+    readAt: string
+}
+
+export interface MessagesPageResponse {
+    content: MessageResponse[]
+    page: number
+    size: number
+    totalElements: number
+    totalPages: number
+    last: boolean
 }
