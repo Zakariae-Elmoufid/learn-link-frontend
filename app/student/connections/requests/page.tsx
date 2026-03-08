@@ -58,9 +58,11 @@ function RequestCard({
     onCancel?: (id: number) => void
     isProcessing: boolean
 }) {
+    if (request.status !== "PENDING") return null
+
     const isPending = type === 'pending'
     const user = isPending 
-        ? { 
+        ? {
             id: request.senderId,
             firstName: request.senderFirstName, 
             lastName: request.senderLastName, 
