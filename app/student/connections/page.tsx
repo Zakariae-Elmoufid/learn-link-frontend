@@ -6,7 +6,8 @@ import {
     useMatchSuggestions, 
     useMatchSuggestionsBySubject, 
     useSendConnectionRequest,
-    useSubjects 
+    useSubjects,
+    usePendingRequestsCount
 } from '../../../hookes'
 import { StudyPartnerCard, StudyPartnerCardSkeleton } from '../../../components/connections'
 import { Button, Input } from '../../../components/ui'
@@ -19,8 +20,10 @@ import {
     ChevronDown,
     Info,
     ArrowRight,
-    RefreshCw
+    RefreshCw,
+    Inbox
 } from 'lucide-react'
+import Link from 'next/link'
 
 type ViewMode = 'grid' | 'list'
 type SortOption = 'compatibility' | 'name' | 'recent'
@@ -39,6 +42,7 @@ export default function ConnectionsPage() {
 
     // Queries
     const { data: subjects } = useSubjects()
+    const { data: pendingCount } = usePendingRequestsCount()
     const { 
         data: suggestions, 
         isLoading, 
@@ -132,30 +136,47 @@ export default function ConnectionsPage() {
                     </p>
                 </div>
 
-                {/* View Toggle */}
-                <div className="flex items-center gap-2 bg-slate-100 dark:bg-slate-800 rounded-lg p-1">
-                    <button
-                        onClick={() => setViewMode('grid')}
-                        className={`flex items-center gap-1.5 px-3 py-1.5 rounded-md text-sm font-medium transition-colors ${
-                            viewMode === 'grid'
-                                ? 'bg-white dark:bg-slate-700 text-slate-900 dark:text-white shadow-sm'
-                                : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
-                        }`}
+                {/* Right side buttons */}
+                <div className="flex items-center gap-3">
+                    {/* Connection Requests Link */}
+                    <Link
+                        href={"/student/connections/requests" as any}
+                        className="relative inline-flex items-center gap-2 px-4 py-2 rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-sm font-medium text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors"
                     >
-                        <LayoutGrid className="h-4 w-4" />
-                        Grid
-                    </button>
-                    <button
-                        onClick={() => setViewMode('list')}
-                        className={`flex items-center gap-1.5 px-3 py-1.5 rounded-md text-sm font-medium transition-colors ${
-                            viewMode === 'list'
-                                ? 'bg-white dark:bg-slate-700 text-slate-900 dark:text-white shadow-sm'
-                                : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
-                        }`}
-                    >
-                        <List className="h-4 w-4" />
-                        List
-                    </button>
+                        <Inbox className="h-4 w-4" />
+                        Requests
+                        {pendingCount && pendingCount.count > 0 && (
+                            <span className="absolute -top-1.5 -right-1.5 h-5 min-w-5 flex items-center justify-center px-1 rounded-full text-xs font-semibold bg-primary-600 text-white">
+                                {pendingCount.count}
+                            </span>
+                        )}
+                    </Link>
+
+                    {/* View Toggle */}
+                    <div className="flex items-center gap-1 bg-slate-100 dark:bg-slate-800 rounded-lg p-1">
+                        <button
+                            onClick={() => setViewMode('grid')}
+                            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-md text-sm font-medium transition-colors ${
+                                viewMode === 'grid'
+                                    ? 'bg-white dark:bg-slate-700 text-slate-900 dark:text-white shadow-sm'
+                                    : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
+                            }`}
+                        >
+                            <LayoutGrid className="h-4 w-4" />
+                            Grid
+                        </button>
+                        <button
+                            onClick={() => setViewMode('list')}
+                            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-md text-sm font-medium transition-colors ${
+                                viewMode === 'list'
+                                    ? 'bg-white dark:bg-slate-700 text-slate-900 dark:text-white shadow-sm'
+                                    : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
+                            }`}
+                        >
+                            <List className="h-4 w-4" />
+                            List
+                        </button>
+                    </div>
                 </div>
             </div>
 

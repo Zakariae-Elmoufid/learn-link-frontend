@@ -1,5 +1,5 @@
 import { useAuthStore } from "../stores";
-import { useMutation, useQuery, useQueryClient, useInfiniteQuery } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import {
   LoginRequest,
   RegisterRequest,
@@ -311,7 +311,7 @@ export function useSendConnectionRequest() {
     mutationFn: (data: ConnectionRequest) => connectionsService.sendRequest(data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: matchingKeys.all })
-      queryClient.invalidateQueries({ queryKey: connectionKeys.requests.sent() })
+      queryClient.invalidateQueries({ queryKey: connectionKeys.requests.all })
       toast.success('Connection request sent!')
     },
     onError: (error: any) => {
@@ -341,8 +341,8 @@ export function useRejectConnectionRequest() {
   return useMutation({
     mutationFn: (requestId: number) => connectionsService.rejectRequest(requestId),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: connectionKeys.requests.pending() })
-      queryClient.invalidateQueries({ queryKey: connectionKeys.requests.pendingCount() })
+      // Invalidate all connection request queries
+      queryClient.invalidateQueries({ queryKey: connectionKeys.requests.all })
       toast.success('Request rejected')
     },
     onError: () => toast.error('Failed to reject request'),
@@ -355,8 +355,9 @@ export function useCancelConnectionRequest() {
   return useMutation({
     mutationFn: (requestId: number) => connectionsService.cancelRequest(requestId),
     onSuccess: () => {
+      // Invalidate all connection-related queries
       queryClient.invalidateQueries({ queryKey: matchingKeys.all })
-      queryClient.invalidateQueries({ queryKey: connectionKeys.requests.sent() })
+      queryClient.invalidateQueries({ queryKey: connectionKeys.requests.all })
       toast.success('Request cancelled')
     },
     onError: () => toast.error('Failed to cancel request'),

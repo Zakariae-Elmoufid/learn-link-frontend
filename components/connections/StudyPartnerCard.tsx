@@ -63,10 +63,10 @@ export function StudyPartnerCard({ partner, onConnect, onViewProfile, isConnecti
             <div className="relative px-4 -mt-10">
                 <div className="relative h-20 w-20 rounded-full border-4 border-white dark:border-slate-800 bg-slate-200 overflow-hidden">
                     {profilePictureUrl ? (
-                        <img
+                        <Image
                             src={profilePictureUrl}
                             alt={fullName}
-
+                            fill
                             className="object-cover"
                         />
                     ) : (
