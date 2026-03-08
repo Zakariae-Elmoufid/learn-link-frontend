@@ -153,3 +153,128 @@ export interface MessagesPageResponse {
     totalPages: number
     last: boolean
 }
+
+// ─── Matching ────────────────────────────────────────────────────────────────
+
+export interface MatchSuggestion {
+    userId: number
+    firstName: string
+    lastName: string
+    profilePictureUrl?: string
+    bio?: string
+    academicLevel: string
+    compatibilityScore: number
+    commonSubjects: string[]
+    subjectMatchPercentage: number
+    levelMatchPercentage: number
+    hasPendingRequest: boolean
+    isConnected: boolean
+}
+
+export interface CompatibilityResponse {
+    userId: number
+    compatibilityScore: number
+    message: string
+}
+
+// ─── Connections ─────────────────────────────────────────────────────────────
+
+export type ConnectionStatus = 'ACTIVE' | 'BLOCKED'
+export type RequestStatus = 'PENDING' | 'ACCEPTED' | 'REJECTED' | 'CANCELLED'
+
+export interface ConnectionRequest {
+    receiverId: number
+    message?: string
+}
+
+export interface ConnectionRequestResponse {
+    id: number
+    senderId: number
+    senderFirstName: string
+    senderLastName: string
+    senderProfilePictureUrl?: string
+    receiverId: number
+    receiverFirstName: string
+    receiverLastName: string
+    receiverProfilePictureUrl?: string
+    message?: string
+    status: RequestStatus
+    compatibilityScore: number
+    createdAt: string
+    updatedAt: string
+}
+
+export interface ConnectionResponse {
+    id: number
+    connectedUserId: number
+    firstName: string
+    lastName: string
+    profilePictureUrl?: string
+    bio?: string
+    academicLevel: string
+    compatibilityScore: number
+    status: ConnectionStatus
+    connectedAt: string
+}
+
+export interface CountResponse {
+    count: number
+}
+
+export interface ConnectionCheckResponse {
+    connected: boolean
+}
+
+// ─── Study Groups ────────────────────────────────────────────────────────────
+
+export type GroupStatus = 'ACTIVE' | 'FULL' | 'ARCHIVED'
+export type GroupRole = 'OWNER' | 'ADMIN' | 'MEMBER'
+export type MembershipStatus = 'PENDING' | 'ACTIVE' | 'REMOVED'
+
+export interface CreateGroupRequest {
+    name: string
+    description?: string
+    subjectId?: number
+    maxMembers?: number
+    isPublic?: boolean
+    coverImageUrl?: string
+}
+
+export interface UpdateGroupRequest {
+    name?: string
+    description?: string
+    maxMembers?: number
+    isPublic?: boolean
+    coverImageUrl?: string
+}
+
+export interface GroupMember {
+    userId: number
+    firstName: string
+    lastName: string
+    profilePictureUrl?: string
+    role: GroupRole
+    status: MembershipStatus
+    joinedAt?: string
+}
+
+export interface StudyGroupResponse {
+    id: number
+    name: string
+    description?: string
+    subjectId?: number
+    subjectName?: string
+    ownerId: number
+    ownerName: string
+    maxMembers: number
+    currentMemberCount: number
+    status: GroupStatus
+    isPublic: boolean
+    coverImageUrl?: string
+    createdAt: string
+    isMember: boolean
+    isAdmin: boolean
+    isOwner: boolean
+    hasPendingRequest: boolean
+    members?: GroupMember[]
+}

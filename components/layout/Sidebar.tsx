@@ -13,6 +13,7 @@ import {
   LogOut,
   Award,
   Calendar,
+  UserPlus,
 } from "lucide-react";
 import { cn } from "../../lib/utils";
 import { useAuthStore } from "../../stores";
@@ -38,6 +39,11 @@ const mainNavItems: NavItem[] = [
     label: "Courses",
     href: "/student/courses",
     icon: <BookOpen className="h-5 w-5" />,
+  },
+  {
+    label: "Connections",
+    href: "/student/connections",
+    icon: <UserPlus className="h-5 w-5" />,
   },
   {
     label: "Study Groups",
