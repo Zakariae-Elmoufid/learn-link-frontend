@@ -243,8 +243,8 @@ export default function ProfilePage() {
             >
               <option value="">Select your level</option>
 
-              {ACADEMIC_LEVELS.map((level) => (
-                <option key={level} value={level}>
+              {ACADEMIC_LEVELS.map((level,index) => (
+                <option key={index} value={level}>
                   {level}
                 </option>
               ))}
