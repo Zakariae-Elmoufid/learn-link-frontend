@@ -8,6 +8,7 @@ import {
     useRemoveConnection 
 } from '../../../../hookes'
 import { ConnectionResponse } from '../../../../lib/api/types'
+import { useMessageStore } from '../../../../stores'
 import { Button, Input } from '../../../../components/ui'
 import { 
     Search, 
@@ -53,7 +54,7 @@ function ConnectionCard({
     isRemoving
 }: { 
     connection: ConnectionResponse
-    onMessage: (userId: number) => void
+    onMessage: (connection: ConnectionResponse) => void
     onRemove: (connectionId: number) => void
     isRemoving: boolean
 }) {
@@ -114,7 +115,7 @@ function ConnectionCard({
                 <Button
                     variant="primary"
                     size="sm"
-                    onClick={() => onMessage(connection.connectedUserId)}
+                    onClick={() => onMessage(connection)}
                     className="flex-1"
                 >
                     <MessageSquare className="h-4 w-4 mr-1.5" />
@@ -197,9 +198,27 @@ export default function MyConnectionsPage() {
         currentPage * ITEMS_PER_PAGE
     )
 
+    // Access message store
+    const { setPendingConversationUser, setActiveConversation, conversations } = useMessageStore()
+
     // Handlers
-    const handleMessage = (userId: number) => {
-        router.push(`/student/messages?user=${userId}` as any)
+    const handleMessage = (connection: ConnectionResponse) => {
+        // Check if conversation already exists
+        const existingConversation = conversations.find(c => c.participantId === connection.connectedUserId)
+        
+        if (!existingConversation) {
+            // Set pending conversation user for new chat
+            setPendingConversationUser({
+                id: connection.connectedUserId,
+                firstName: connection.firstName,
+                lastName: connection.lastName,
+                profilePictureUrl: connection.profilePictureUrl,
+            })
+        }
+        
+        // Set active conversation and navigate
+        setActiveConversation(connection.connectedUserId)
+        router.push('/student/messages')
     }
 
     const handleRemove = async (connectionId: number) => {
