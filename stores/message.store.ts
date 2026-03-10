@@ -6,15 +6,28 @@ interface TypingUser {
     timestamp: number
 }
 
+// Minimal user info for starting new conversations
+export interface PendingConversationUser {
+    id: number
+    firstName: string
+    lastName: string
+    profilePictureUrl?: string
+}
+
 interface MessageState {
     // Conversations list
     conversations: ConversationResponse[]
     setConversations: (conversations: ConversationResponse[]) => void
     updateConversation: (participantId: number, updates: Partial<ConversationResponse>) => void
+    addConversation: (conversation: ConversationResponse) => void
 
     // Active conversation
     activeConversationId: number | null
     setActiveConversation: (participantId: number | null) => void
+
+    // Pending conversation user (for new conversations with no history)
+    pendingConversationUser: PendingConversationUser | null
+    setPendingConversationUser: (user: PendingConversationUser | null) => void
 
     // Messages for active conversation
     messages: MessageResponse[]
@@ -43,6 +56,7 @@ interface MessageState {
 const initialState = {
     conversations: [],
     activeConversationId: null,
+    pendingConversationUser: null,
     messages: [],
     typingUsers: new Map<number, TypingUser>(),
     totalUnreadCount: 0,
@@ -61,10 +75,24 @@ export const useMessageStore = create<MessageState>()((set, get) => ({
             ),
         })),
 
+    addConversation: (conversation) =>
+        set((state) => {
+            // Check if conversation already exists
+            const exists = state.conversations.some((c) => c.participantId === conversation.participantId)
+            if (exists) {
+                return state
+            }
+            return {
+                conversations: [conversation, ...state.conversations],
+            }
+        }),
+
     setActiveConversation: (participantId) => {
         console.log("[Store] setActiveConversation:", participantId)
         set({ activeConversationId: participantId })
     },
+
+    setPendingConversationUser: (user) => set({ pendingConversationUser: user }),
 
     setMessages: (messages) => {
         console.log("[Store] setMessages called with", messages.length, "messages")

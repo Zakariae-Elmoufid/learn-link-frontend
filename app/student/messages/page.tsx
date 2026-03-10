@@ -18,6 +18,7 @@ import {
 import { useMessageStore, useAuthStore } from "../../../stores";
 import { MessageSquarePlus } from "lucide-react";
 import { cn } from "../../../lib/utils";
+import { ConversationResponse } from "../../../lib/api/types";
 
 export default function MessagesPage() {
   const router = useRouter();
@@ -31,6 +32,9 @@ export default function MessagesPage() {
     messages,
     searchQuery,
     setSearchQuery,
+    pendingConversationUser,
+    setPendingConversationUser,
+    addConversation,
   } = useMessageStore();
 
   // Initialize WebSocket connection
@@ -42,8 +46,9 @@ export default function MessagesPage() {
     console.log("[MessagesPage] User ID:", user?.id)
     console.log("[MessagesPage] Messages count:", messages.length)
     console.log("[MessagesPage] Active conversation:", activeConversationId)
+    console.log("[MessagesPage] Pending conversation user:", pendingConversationUser)
     console.log("[MessagesPage] WebSocket connected:", isConnected)
-  }, [user, messages.length, activeConversationId, isConnected])
+  }, [user, messages.length, activeConversationId, pendingConversationUser, isConnected])
 
   // Queries
   const { isLoading: conversationsLoading } = useConversations();
@@ -61,9 +66,38 @@ export default function MessagesPage() {
   // Fetch unread count
   useUnreadCount();
 
+  // Clear pending conversation user when switching to an existing conversation
+  useEffect(() => {
+    if (activeConversationId) {
+      const existingConversation = conversations.find(c => c.participantId === activeConversationId);
+      if (existingConversation && pendingConversationUser) {
+        setPendingConversationUser(null);
+      }
+    }
+  }, [activeConversationId, conversations, pendingConversationUser, setPendingConversationUser]);
+
   // Get active conversation details
-  const activeConversation =
+  const existingConversation =
     conversations.find((c) => c.participantId === activeConversationId) || null;
+
+  // Create virtual conversation from pending user if no existing conversation
+  const activeConversation: ConversationResponse | null = existingConversation || (
+    pendingConversationUser && activeConversationId === pendingConversationUser.id
+      ? {
+          participantId: pendingConversationUser.id,
+          participant: {
+            userId: pendingConversationUser.id,
+            firstName: pendingConversationUser.firstName,
+            lastName: pendingConversationUser.lastName,
+            profilePictureUrl: pendingConversationUser.profilePictureUrl,
+          } as any,
+          participantAvatar: pendingConversationUser.profilePictureUrl,
+          lastMessage: '',
+          lastMessageAt: new Date().toISOString(),
+          unreadCount: 0,
+        }
+      : null
+  );
 
   // Mark conversation as read when selected
   useEffect(() => {
@@ -78,10 +112,24 @@ export default function MessagesPage() {
 
   const handleSelectConversation = (participantId: number) => {
     setActiveConversation(participantId);
+    // Clear pending user if selecting a different conversation
+    if (pendingConversationUser && pendingConversationUser.id !== participantId) {
+      setPendingConversationUser(null);
+    }
   };
 
   const handleSendMessage = (content: string) => {
     if (!activeConversationId) return;
+
+    // If this is a new conversation (from pending user), add it to conversations list
+    if (pendingConversationUser && !existingConversation && activeConversation) {
+      addConversation({
+        ...activeConversation,
+        lastMessage: content,
+        lastMessageAt: new Date().toISOString(),
+      });
+      setPendingConversationUser(null);
+    }
 
     // Try WebSocket first, fallback to HTTP
     if (isConnected) {
