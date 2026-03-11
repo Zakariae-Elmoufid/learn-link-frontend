@@ -608,3 +608,18 @@ export function useUpdateMemberRole() {
     onError: () => toast.error('Failed to update role'),
   })
 }
+
+export function useUploadGroupImage() {
+  const queryClient = useQueryClient()
+  
+  return useMutation({
+    mutationFn: ({ groupId, file }: { groupId: number; file: File }) =>
+      groupsService.uploadImage(groupId, file),
+    onSuccess: (_, { groupId }) => {
+      queryClient.invalidateQueries({ queryKey: groupKeys.detail(groupId) })
+      queryClient.invalidateQueries({ queryKey: groupKeys.full(groupId) })
+      queryClient.invalidateQueries({ queryKey: groupKeys.my() })
+    },
+    onError: () => toast.error('Failed to upload image'),
+  })
+}
