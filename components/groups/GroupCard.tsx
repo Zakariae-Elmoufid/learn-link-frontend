@@ -89,7 +89,7 @@ export function GroupCard({
     isMember,
     hasPendingRequest,
   } = group;
-  console.log(group);
+    console.log(group.coverImageUrl);
 
   const subjectColor = getSubjectColor(subjectName);
   const isFull = currentMemberCount >= maxMembers;
@@ -127,13 +127,13 @@ export function GroupCard({
     >
       {/* Cover Image */}
       <div className={`relative h-36   ${!group.coverImageUrl ? subjectColor.bg : ""}`}>
-          {/*{group.coverImageUrl ? (*/}
-          {/*    <Image src={group.coverImageUrl} alt={name} fill*/}
-          {/*           className="object-cover"*/}
-          {/*     />*/}
-          {/*) : (*/}
-          {/*    <div className="absolute inset-0 bg-gradient-to-br from-black/10 to-black/30" />*/}
-          {/*)}*/}
+            {group.coverImageUrl ? (
+                <Image src={group.coverImageUrl} alt={name} fill
+                       className="object-cover"
+                 />
+            ) : (
+                <div className="absolute inset-0 bg-gradient-to-br from-black/10 to-black/30" />
+            )}
 
         {/* Public/Private Badge */}
         <div

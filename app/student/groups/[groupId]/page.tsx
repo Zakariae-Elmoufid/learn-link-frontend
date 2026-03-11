@@ -15,8 +15,10 @@ import {
     useUpdateMemberRole,
     useDeleteGroup,
     useUpdateGroup,
+    useUploadGroupImage,
 } from '../../../../hookes'
 import { Button } from '../../../../components/ui'
+import { EditGroupModal } from '../../../../components/groups'
 import {
     ArrowLeft,
     Users,
@@ -36,7 +38,7 @@ import {
     Edit,
     Clock,
 } from 'lucide-react'
-import { GroupMember, GroupRole } from '../../../../lib/api/types'
+import { GroupMember, GroupRole, UpdateGroupRequest } from '../../../../lib/api/types'
 
 export default function GroupDetailPage() {
     const params = useParams()
@@ -62,6 +64,11 @@ export default function GroupDetailPage() {
     const removeMember = useRemoveGroupMember()
     const updateRole = useUpdateMemberRole()
     const deleteGroup = useDeleteGroup()
+    const updateGroup = useUpdateGroup()
+    const uploadGroupImage = useUploadGroupImage()
+
+
+
 
     if (isLoading) {
         return (
@@ -116,6 +123,19 @@ export default function GroupDetailPage() {
         }
     }
 
+    const handleUpdateGroup = async (data: UpdateGroupRequest, imageFile?: File) => {
+        try {
+            await updateGroup.mutateAsync({ groupId, data })
+            // Upload new image if provided
+            if (imageFile) {
+                await uploadGroupImage.mutateAsync({ groupId, file: imageFile })
+            }
+            setShowSettings(false)
+        } catch (error) {
+            // Error is handled by the hook
+        }
+    }
+
     const handleApproveRequest = async (requesterId: number) => {
         await approveRequest.mutateAsync({ groupId, requesterId })
     }
@@ -154,6 +174,7 @@ export default function GroupDetailPage() {
             day: 'numeric',
         })
     }
+
 
     return (
         <div className="space-y-6">
@@ -469,6 +490,17 @@ export default function GroupDetailPage() {
                     )}
                 </div>
             </div>
+
+            {/* Edit Group Modal */}
+            {group && (
+                <EditGroupModal
+                    isOpen={showSettings}
+                    onClose={() => setShowSettings(false)}
+                    onSubmit={handleUpdateGroup}
+                    group={group}
+                    isLoading={updateGroup.isPending || uploadGroupImage.isPending}
+                />
+            )}
         </div>
     )
 }
