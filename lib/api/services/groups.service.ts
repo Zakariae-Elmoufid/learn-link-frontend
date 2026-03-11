@@ -116,4 +116,17 @@ export const groupsService = {
     /** Update member role (admin only) */
     updateMemberRole: (groupId: number, memberId: number, role: GroupRole) =>
         apiClient.put(`/groups/${groupId}/members/${memberId}/role`, null, { params: { role } }),
+
+    // ─── Image Upload ────────────────────────────────────────────────────────
+
+    /** Upload cover image for a study group */
+    uploadImage: (groupId: number, file: File) => {
+        const formData = new FormData()
+        formData.append('file', file)
+        return apiClient
+            .post<StudyGroupResponse>(`/groups/${groupId}/image`, formData, {
+                headers: { 'Content-Type': 'multipart/form-data' },
+            })
+            .then((r) => r.data)
+    },
 }
