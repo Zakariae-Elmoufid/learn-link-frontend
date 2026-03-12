@@ -40,9 +40,9 @@ export function useInitAuth() {
 
   useEffect(() => {
     if (!mounted) return;
-    
+
     const token = tokenStorage.getAccess();
-    
+
     if (!token) {
       console.log("[Auth] No token found");
       setLoading(false);
@@ -56,21 +56,21 @@ export function useInitAuth() {
     }
 
     console.log("[Auth] Token found, parsing user from JWT...");
-    
+
     try {
       // Parse JWT to extract user info
-      const payload = JSON.parse(atob(token.split('.')[1]));
+      const payload = JSON.parse(atob(token.split(".")[1]));
       console.log("[Auth] JWT payload:", payload);
-      
+
       const authUser: AuthUser = {
         id: payload.userId,
         email: payload.sub, // subject is usually email/username
         username: payload.sub,
         active: true,
         emailVerified: true,
-        role: payload.role || 'STUDENT',
+        role: payload.role || "STUDENT",
       };
-      
+
       console.log("[Auth] Setting user from token:", authUser);
       setUser(authUser);
     } catch (error) {
@@ -197,36 +197,47 @@ export {
   useUnreadCount,
   useUnreadCountInConversation,
   messageKeys,
-} from './useMessaging'
+} from "./useMessaging";
 
 // ─── WebSocket Hook ──────────────────────────────────────────────────────────
-export { useWebSocket } from './useWebSocket'
+export { useWebSocket } from "./useWebSocket";
 
 // ─── Matching Hooks ──────────────────────────────────────────────────────────
 
 export const matchingKeys = {
-  all: ['matching'] as const,
-  suggestions: (limit?: number) => [...matchingKeys.all, 'suggestions', { limit }] as const,
-  suggestionsBySubject: (subjectId: number, limit?: number) => 
-    [...matchingKeys.all, 'suggestions', 'subject', subjectId, { limit }] as const,
-  compatibility: (userId: number) => [...matchingKeys.all, 'compatibility', userId] as const,
-}
+  all: ["matching"] as const,
+  suggestions: (limit?: number) =>
+    [...matchingKeys.all, "suggestions", { limit }] as const,
+  suggestionsBySubject: (subjectId: number, limit?: number) =>
+    [
+      ...matchingKeys.all,
+      "suggestions",
+      "subject",
+      subjectId,
+      { limit },
+    ] as const,
+  compatibility: (userId: number) =>
+    [...matchingKeys.all, "compatibility", userId] as const,
+};
 
 export function useMatchSuggestions(limit = 10) {
   return useQuery({
     queryKey: matchingKeys.suggestions(limit),
     queryFn: () => matchingService.getSuggestions(limit),
     staleTime: 5 * 60 * 1000, // 5 minutes
-  })
+  });
 }
 
-export function useMatchSuggestionsBySubject(subjectId: number | null, limit = 10) {
+export function useMatchSuggestionsBySubject(
+  subjectId: number | null,
+  limit = 10,
+) {
   return useQuery({
     queryKey: matchingKeys.suggestionsBySubject(subjectId!, limit),
     queryFn: () => matchingService.getSuggestionsBySubject(subjectId!, limit),
     enabled: !!subjectId,
     staleTime: 5 * 60 * 1000,
-  })
+  });
 }
 
 export function useCompatibility(userId: number) {
@@ -234,37 +245,38 @@ export function useCompatibility(userId: number) {
     queryKey: matchingKeys.compatibility(userId),
     queryFn: () => matchingService.getCompatibility(userId),
     enabled: !!userId,
-  })
+  });
 }
 
 // ─── Connections Hooks ───────────────────────────────────────────────────────
 
 export const connectionKeys = {
-  all: ['connections'] as const,
-  list: () => [...connectionKeys.all, 'list'] as const,
-  count: () => [...connectionKeys.all, 'count'] as const,
+  all: ["connections"] as const,
+  list: () => [...connectionKeys.all, "list"] as const,
+  count: () => [...connectionKeys.all, "count"] as const,
   detail: (id: number) => [...connectionKeys.all, id] as const,
-  check: (userId: number) => [...connectionKeys.all, 'check', userId] as const,
+  check: (userId: number) => [...connectionKeys.all, "check", userId] as const,
   requests: {
-    all: ['connection-requests'] as const,
-    pending: () => [...connectionKeys.requests.all, 'pending'] as const,
-    pendingCount: () => [...connectionKeys.requests.all, 'pending', 'count'] as const,
-    sent: () => [...connectionKeys.requests.all, 'sent'] as const,
+    all: ["connection-requests"] as const,
+    pending: () => [...connectionKeys.requests.all, "pending"] as const,
+    pendingCount: () =>
+      [...connectionKeys.requests.all, "pending", "count"] as const,
+    sent: () => [...connectionKeys.requests.all, "sent"] as const,
   },
-}
+};
 
 export function useConnections() {
   return useQuery({
     queryKey: connectionKeys.list(),
     queryFn: () => connectionsService.getConnections(),
-  })
+  });
 }
 
 export function useConnectionsCount() {
   return useQuery({
     queryKey: connectionKeys.count(),
     queryFn: () => connectionsService.getConnectionsCount(),
-  })
+  });
 }
 
 export function useConnection(connectionId: number) {
@@ -272,7 +284,7 @@ export function useConnection(connectionId: number) {
     queryKey: connectionKeys.detail(connectionId),
     queryFn: () => connectionsService.getConnection(connectionId),
     enabled: !!connectionId,
-  })
+  });
 }
 
 export function useCheckConnection(otherUserId: number) {
@@ -280,123 +292,132 @@ export function useCheckConnection(otherUserId: number) {
     queryKey: connectionKeys.check(otherUserId),
     queryFn: () => connectionsService.checkConnection(otherUserId),
     enabled: !!otherUserId,
-  })
+  });
 }
 
 export function usePendingRequests() {
   return useQuery({
     queryKey: connectionKeys.requests.pending(),
     queryFn: () => connectionsService.getPendingRequests(),
-  })
+  });
 }
 
 export function usePendingRequestsCount() {
   return useQuery({
     queryKey: connectionKeys.requests.pendingCount(),
     queryFn: () => connectionsService.getPendingRequestsCount(),
-  })
+  });
 }
 
 export function useSentRequests() {
   return useQuery({
     queryKey: connectionKeys.requests.sent(),
     queryFn: () => connectionsService.getSentRequests(),
-  })
+  });
 }
 
 export function useSendConnectionRequest() {
-  const queryClient = useQueryClient()
-  
+  const queryClient = useQueryClient();
+
   return useMutation({
-    mutationFn: (data: ConnectionRequest) => connectionsService.sendRequest(data),
+    mutationFn: (data: ConnectionRequest) =>
+      connectionsService.sendRequest(data),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: matchingKeys.all })
-      queryClient.invalidateQueries({ queryKey: connectionKeys.requests.all })
-      toast.success('Connection request sent!')
+      queryClient.invalidateQueries({ queryKey: matchingKeys.all });
+      queryClient.invalidateQueries({ queryKey: connectionKeys.requests.all });
+      toast.success("Connection request sent!");
     },
     onError: (error: any) => {
-      const message = error?.response?.data?.message || 'Failed to send request'
-      toast.error(message)
+      const message =
+        error?.response?.data?.message || "Failed to send request";
+      toast.error(message);
     },
-  })
+  });
 }
 
 export function useAcceptConnectionRequest() {
-  const queryClient = useQueryClient()
-  
+  const queryClient = useQueryClient();
+
   return useMutation({
-    mutationFn: (requestId: number) => connectionsService.acceptRequest(requestId),
+    mutationFn: (requestId: number) =>
+      connectionsService.acceptRequest(requestId),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: connectionKeys.all })
-      queryClient.invalidateQueries({ queryKey: connectionKeys.requests.all })
-      toast.success('Connection accepted!')
+      queryClient.invalidateQueries({ queryKey: connectionKeys.all });
+      queryClient.invalidateQueries({ queryKey: connectionKeys.requests.all });
+      toast.success("Connection accepted!");
     },
-    onError: () => toast.error('Failed to accept request'),
-  })
+    onError: () => toast.error("Failed to accept request"),
+  });
 }
 
 export function useRejectConnectionRequest() {
-  const queryClient = useQueryClient()
-  
+  const queryClient = useQueryClient();
+
   return useMutation({
-    mutationFn: (requestId: number) => connectionsService.rejectRequest(requestId),
+    mutationFn: (requestId: number) =>
+      connectionsService.rejectRequest(requestId),
     onSuccess: () => {
       // Invalidate all connection request queries
-      queryClient.invalidateQueries({ queryKey: connectionKeys.requests.all })
-      toast.success('Request rejected')
+      queryClient.invalidateQueries({ queryKey: connectionKeys.requests.all });
+      toast.success("Request rejected");
     },
-    onError: () => toast.error('Failed to reject request'),
-  })
+    onError: () => toast.error("Failed to reject request"),
+  });
 }
 
 export function useCancelConnectionRequest() {
-  const queryClient = useQueryClient()
-  
+  const queryClient = useQueryClient();
+
   return useMutation({
-    mutationFn: (requestId: number) => connectionsService.cancelRequest(requestId),
+    mutationFn: (requestId: number) =>
+      connectionsService.cancelRequest(requestId),
     onSuccess: () => {
       // Invalidate all connection-related queries
-      queryClient.invalidateQueries({ queryKey: matchingKeys.all })
-      queryClient.invalidateQueries({ queryKey: connectionKeys.requests.all })
-      toast.success('Request cancelled')
+      queryClient.invalidateQueries({ queryKey: matchingKeys.all });
+      queryClient.invalidateQueries({ queryKey: connectionKeys.requests.all });
+      toast.success("Request cancelled");
     },
-    onError: () => toast.error('Failed to cancel request'),
-  })
+    onError: () => toast.error("Failed to cancel request"),
+  });
 }
 
 export function useRemoveConnection() {
-  const queryClient = useQueryClient()
-  
+  const queryClient = useQueryClient();
+
   return useMutation({
-    mutationFn: (connectionId: number) => connectionsService.removeConnection(connectionId),
+    mutationFn: (connectionId: number) =>
+      connectionsService.removeConnection(connectionId),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: connectionKeys.all })
-      toast.success('Connection removed')
+      queryClient.invalidateQueries({ queryKey: connectionKeys.all });
+      toast.success("Connection removed");
     },
-    onError: () => toast.error('Failed to remove connection'),
-  })
+    onError: () => toast.error("Failed to remove connection"),
+  });
 }
 
 // ─── Study Groups Hooks ──────────────────────────────────────────────────────
 
 export const groupKeys = {
-  all: ['groups'] as const,
-  discover: (page?: number, size?: number) => [...groupKeys.all, 'discover', { page, size }] as const,
-  search: (keyword: string, page?: number) => [...groupKeys.all, 'search', keyword, { page }] as const,
-  bySubject: (subjectId: number) => [...groupKeys.all, 'subject', subjectId] as const,
-  my: () => [...groupKeys.all, 'my'] as const,
-  owned: () => [...groupKeys.all, 'owned'] as const,
+  all: ["groups"] as const,
+  discover: (page?: number, size?: number) =>
+    [...groupKeys.all, "discover", { page, size }] as const,
+  search: (keyword: string, page?: number) =>
+    [...groupKeys.all, "search", keyword, { page }] as const,
+  bySubject: (subjectId: number) =>
+    [...groupKeys.all, "subject", subjectId] as const,
+  my: () => [...groupKeys.all, "my"] as const,
+  owned: () => [...groupKeys.all, "owned"] as const,
   detail: (id: number) => [...groupKeys.all, id] as const,
-  full: (id: number) => [...groupKeys.all, id, 'full'] as const,
-  members: (id: number) => [...groupKeys.all, id, 'members'] as const,
-  requests: (id: number) => [...groupKeys.all, id, 'requests'] as const,
-}
+  full: (id: number) => [...groupKeys.all, id, "full"] as const,
+  members: (id: number) => [...groupKeys.all, id, "members"] as const,
+  requests: (id: number) => [...groupKeys.all, id, "requests"] as const,
+};
 
 export function useDiscoverGroups(page = 0, size = 10) {
   return useQuery({
     queryKey: groupKeys.discover(page, size),
     queryFn: () => groupsService.discover(page, size),
-  })
+  });
 }
 
 export function useSearchGroups(keyword: string, page = 0, size = 10) {
@@ -404,7 +425,7 @@ export function useSearchGroups(keyword: string, page = 0, size = 10) {
     queryKey: groupKeys.search(keyword, page),
     queryFn: () => groupsService.search(keyword, page, size),
     enabled: keyword.length > 0,
-  })
+  });
 }
 
 export function useGroupsBySubject(subjectId: number | null) {
@@ -412,21 +433,21 @@ export function useGroupsBySubject(subjectId: number | null) {
     queryKey: groupKeys.bySubject(subjectId!),
     queryFn: () => groupsService.getBySubject(subjectId!),
     enabled: !!subjectId,
-  })
+  });
 }
 
 export function useMyGroups() {
   return useQuery({
     queryKey: groupKeys.my(),
     queryFn: () => groupsService.getMyGroups(),
-  })
+  });
 }
 
 export function useOwnedGroups() {
   return useQuery({
     queryKey: groupKeys.owned(),
     queryFn: () => groupsService.getOwnedGroups(),
-  })
+  });
 }
 
 export function useGroup(groupId: number | null) {
@@ -434,7 +455,7 @@ export function useGroup(groupId: number | null) {
     queryKey: groupKeys.detail(groupId!),
     queryFn: () => groupsService.getById(groupId!),
     enabled: !!groupId,
-  })
+  });
 }
 
 export function useGroupWithMembers(groupId: number | null) {
@@ -442,7 +463,7 @@ export function useGroupWithMembers(groupId: number | null) {
     queryKey: groupKeys.full(groupId!),
     queryFn: () => groupsService.getWithMembers(groupId!),
     enabled: !!groupId,
-  })
+  });
 }
 
 export function useGroupMembers(groupId: number | null) {
@@ -450,7 +471,7 @@ export function useGroupMembers(groupId: number | null) {
     queryKey: groupKeys.members(groupId!),
     queryFn: () => groupsService.getMembers(groupId!),
     enabled: !!groupId,
-  })
+  });
 }
 
 export function useGroupPendingRequests(groupId: number | null) {
@@ -458,153 +479,196 @@ export function useGroupPendingRequests(groupId: number | null) {
     queryKey: groupKeys.requests(groupId!),
     queryFn: () => groupsService.getPendingRequests(groupId!),
     enabled: !!groupId,
-  })
+  });
 }
 
 export function useCreateGroup() {
-  const queryClient = useQueryClient()
-  
+  const queryClient = useQueryClient();
+
   return useMutation({
     mutationFn: (data: CreateGroupRequest) => groupsService.create(data),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: groupKeys.my() })
-      queryClient.invalidateQueries({ queryKey: groupKeys.owned() })
-      toast.success('Group created successfully!')
+      queryClient.invalidateQueries({ queryKey: groupKeys.my() });
+      queryClient.invalidateQueries({ queryKey: groupKeys.owned() });
+      toast.success("Group created successfully!");
     },
     onError: (error: any) => {
-      const message = error?.response?.data?.message || 'Failed to create group'
-      toast.error(message)
+      const message =
+        error?.response?.data?.message || "Failed to create group";
+      toast.error(message);
     },
-  })
+  });
 }
 
 export function useUpdateGroup() {
-  const queryClient = useQueryClient()
-  
+  const queryClient = useQueryClient();
+
   return useMutation({
-    mutationFn: ({ groupId, data }: { groupId: number; data: UpdateGroupRequest }) => 
-      groupsService.update(groupId, data),
+    mutationFn: ({
+      groupId,
+      data,
+    }: {
+      groupId: number;
+      data: UpdateGroupRequest;
+    }) => groupsService.update(groupId, data),
     onSuccess: (_, { groupId }) => {
-      queryClient.invalidateQueries({ queryKey: groupKeys.detail(groupId) })
-      queryClient.invalidateQueries({ queryKey: groupKeys.full(groupId) })
-      queryClient.invalidateQueries({ queryKey: groupKeys.my() })
-      toast.success('Group updated!')
+      queryClient.invalidateQueries({ queryKey: groupKeys.detail(groupId) });
+      queryClient.invalidateQueries({ queryKey: groupKeys.full(groupId) });
+      queryClient.invalidateQueries({ queryKey: groupKeys.my() });
+      toast.success("Group updated!");
     },
-    onError: () => toast.error('Failed to update group'),
-  })
+    onError: () => toast.error("Failed to update group"),
+  });
 }
 
 export function useDeleteGroup() {
-  const queryClient = useQueryClient()
-  
+  const queryClient = useQueryClient();
+
   return useMutation({
     mutationFn: (groupId: number) => groupsService.delete(groupId),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: groupKeys.all })
-      toast.success('Group deleted')
+      queryClient.invalidateQueries({ queryKey: groupKeys.all });
+      toast.success("Group deleted");
     },
-    onError: () => toast.error('Failed to delete group'),
-  })
+    onError: () => toast.error("Failed to delete group"),
+  });
 }
 
 export function useJoinGroup() {
-  const queryClient = useQueryClient()
-  
+  const queryClient = useQueryClient();
+
   return useMutation({
     mutationFn: (groupId: number) => groupsService.join(groupId),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: groupKeys.all })
-      toast.success('Joined group!')
+      queryClient.invalidateQueries({ queryKey: groupKeys.all });
+      toast.success("Joined group!");
     },
     onError: (error: any) => {
-      const message = error?.response?.data?.message || 'Failed to join group'
-      toast.error(message)
+      const message = error?.response?.data?.message || "Failed to join group";
+      toast.error(message);
     },
-  })
+  });
 }
 
 export function useRequestJoinGroup() {
-  const queryClient = useQueryClient()
-  
+  const queryClient = useQueryClient();
+
   return useMutation({
     mutationFn: (groupId: number) => groupsService.requestJoin(groupId),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: groupKeys.all })
-      toast.success('Join request sent!')
+      queryClient.invalidateQueries({ queryKey: groupKeys.all });
+      toast.success("Join request sent!");
     },
-    onError: () => toast.error('Failed to send join request'),
-  })
+    onError: () => toast.error("Failed to send join request"),
+  });
 }
 
 export function useLeaveGroup() {
-  const queryClient = useQueryClient()
-  
+  const queryClient = useQueryClient();
+
   return useMutation({
     mutationFn: (groupId: number) => groupsService.leave(groupId),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: groupKeys.all })
-      toast.success('Left group')
+      queryClient.invalidateQueries({ queryKey: groupKeys.all });
+      toast.success("Left group");
     },
-    onError: () => toast.error('Failed to leave group'),
-  })
+    onError: () => toast.error("Failed to leave group"),
+  });
 }
 
 export function useApproveGroupRequest() {
-  const queryClient = useQueryClient()
-  
+  const queryClient = useQueryClient();
+
   return useMutation({
-    mutationFn: ({ groupId, requesterId }: { groupId: number; requesterId: number }) =>
-      groupsService.approveRequest(groupId, requesterId),
+    mutationFn: ({
+      groupId,
+      requesterId,
+    }: {
+      groupId: number;
+      requesterId: number;
+    }) => groupsService.approveRequest(groupId, requesterId),
     onSuccess: (_, { groupId }) => {
-      queryClient.invalidateQueries({ queryKey: groupKeys.requests(groupId) })
-      queryClient.invalidateQueries({ queryKey: groupKeys.members(groupId) })
-      queryClient.invalidateQueries({ queryKey: groupKeys.full(groupId) })
-      toast.success('Request approved!')
+      queryClient.invalidateQueries({ queryKey: groupKeys.requests(groupId) });
+      queryClient.invalidateQueries({ queryKey: groupKeys.members(groupId) });
+      queryClient.invalidateQueries({ queryKey: groupKeys.full(groupId) });
+      toast.success("Request approved!");
     },
-    onError: () => toast.error('Failed to approve request'),
-  })
+    onError: () => toast.error("Failed to approve request"),
+  });
 }
 
 export function useRejectGroupRequest() {
-  const queryClient = useQueryClient()
-  
+  const queryClient = useQueryClient();
+
   return useMutation({
-    mutationFn: ({ groupId, requesterId }: { groupId: number; requesterId: number }) =>
-      groupsService.rejectRequest(groupId, requesterId),
+    mutationFn: ({
+      groupId,
+      requesterId,
+    }: {
+      groupId: number;
+      requesterId: number;
+    }) => groupsService.rejectRequest(groupId, requesterId),
     onSuccess: (_, { groupId }) => {
-      queryClient.invalidateQueries({ queryKey: groupKeys.requests(groupId) })
-      toast.success('Request rejected')
+      queryClient.invalidateQueries({ queryKey: groupKeys.requests(groupId) });
+      toast.success("Request rejected");
     },
-    onError: () => toast.error('Failed to reject request'),
-  })
+    onError: () => toast.error("Failed to reject request"),
+  });
 }
 
 export function useRemoveGroupMember() {
-  const queryClient = useQueryClient()
-  
+  const queryClient = useQueryClient();
+
   return useMutation({
-    mutationFn: ({ groupId, memberId }: { groupId: number; memberId: number }) =>
-      groupsService.removeMember(groupId, memberId),
+    mutationFn: ({
+      groupId,
+      memberId,
+    }: {
+      groupId: number;
+      memberId: number;
+    }) => groupsService.removeMember(groupId, memberId),
     onSuccess: (_, { groupId }) => {
-      queryClient.invalidateQueries({ queryKey: groupKeys.members(groupId) })
-      queryClient.invalidateQueries({ queryKey: groupKeys.full(groupId) })
-      toast.success('Member removed')
+      queryClient.invalidateQueries({ queryKey: groupKeys.members(groupId) });
+      queryClient.invalidateQueries({ queryKey: groupKeys.full(groupId) });
+      toast.success("Member removed");
     },
-    onError: () => toast.error('Failed to remove member'),
-  })
+    onError: () => toast.error("Failed to remove member"),
+  });
 }
 
 export function useUpdateMemberRole() {
-  const queryClient = useQueryClient()
-  
+  const queryClient = useQueryClient();
+
   return useMutation({
-    mutationFn: ({ groupId, memberId, role }: { groupId: number; memberId: number; role: GroupRole }) =>
-      groupsService.updateMemberRole(groupId, memberId, role),
+    mutationFn: ({
+      groupId,
+      memberId,
+      role,
+    }: {
+      groupId: number;
+      memberId: number;
+      role: GroupRole;
+    }) => groupsService.updateMemberRole(groupId, memberId, role),
     onSuccess: (_, { groupId }) => {
-      queryClient.invalidateQueries({ queryKey: groupKeys.members(groupId) })
-      queryClient.invalidateQueries({ queryKey: groupKeys.full(groupId) })
-      toast.success('Role updated!')
+      queryClient.invalidateQueries({ queryKey: groupKeys.members(groupId) });
+      queryClient.invalidateQueries({ queryKey: groupKeys.full(groupId) });
+      toast.success("Role updated!");
     },
-    onError: () => toast.error('Failed to update role'),
-  })
+    onError: () => toast.error("Failed to update role"),
+  });
+}
+
+export function useUploadGroupImage() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: ({ groupId, file }: { groupId: number; file: File }) =>
+      groupsService.uploadImage(groupId, file),
+    onSuccess: (_, { groupId }) => {
+      queryClient.invalidateQueries({ queryKey: groupKeys.detail(groupId) });
+      queryClient.invalidateQueries({ queryKey: groupKeys.full(groupId) });
+      queryClient.invalidateQueries({ queryKey: groupKeys.my() });
+    },
+    onError: () => toast.error("Failed to upload image"),
+  });
 }
