@@ -7,7 +7,7 @@ const nextConfig: NextConfig = {
                 protocol: 'https',
                 hostname: 'learnlink-files.s3.eu-west-3.amazonaws.com'
             }
-        ],
+            ],
     },
         typedRoutes: true,
     };

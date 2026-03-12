@@ -658,17 +658,19 @@ export function useUpdateMemberRole() {
   });
 }
 
+
+
 export function useUploadGroupImage() {
-  const queryClient = useQueryClient();
+  const queryClient = useQueryClient()
 
   return useMutation({
     mutationFn: ({ groupId, file }: { groupId: number; file: File }) =>
       groupsService.uploadImage(groupId, file),
     onSuccess: (_, { groupId }) => {
-      queryClient.invalidateQueries({ queryKey: groupKeys.detail(groupId) });
-      queryClient.invalidateQueries({ queryKey: groupKeys.full(groupId) });
-      queryClient.invalidateQueries({ queryKey: groupKeys.my() });
+      queryClient.invalidateQueries({ queryKey: groupKeys.detail(groupId) })
+      queryClient.invalidateQueries({ queryKey: groupKeys.full(groupId) })
+      queryClient.invalidateQueries({ queryKey: groupKeys.my() })
     },
-    onError: () => toast.error("Failed to upload image"),
-  });
+    onError: () => toast.error('Failed to upload image'),
+  })
 }
