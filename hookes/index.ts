@@ -674,3 +674,23 @@ export function useUploadGroupImage() {
     onError: () => toast.error('Failed to upload image'),
   })
 }
+
+// ─── Posts / Community Hooks ─────────────────────────────────────────────────
+export {
+  usePosts,
+  useAllPosts,
+  useInfinitePosts,
+  usePost,
+  usePostsByCategory,
+  usePopularPosts,
+  useTrendingPosts,
+  useUserPosts,
+  useSearchPosts,
+  useCreatePost,
+  useUpdatePost,
+  useDeletePost,
+  useLikePost,
+  useUnlikePost,
+  useTogglePostLike,
+  postKeys,
+} from "./usePosts";

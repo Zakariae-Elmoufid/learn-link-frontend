@@ -278,3 +278,56 @@ export interface StudyGroupResponse {
     hasPendingRequest: boolean
     members?: GroupMember[]
 }
+
+// ─── Community / Posts ───────────────────────────────────────────────────────
+
+export type PostType = 'SUMMARY' | 'TUTORIAL' | 'DISCUSSION'
+
+export type PostCategory =
+    | 'MATHEMATICS'
+    | 'SCIENCE'
+    | 'LANGUAGES'
+    | 'PROGRAMMING'
+    | 'HISTORY'
+    | 'LITERATURE'
+    | 'PHYSICS'
+    | 'CHEMISTRY'
+    | 'BIOLOGY'
+    | 'ECONOMICS'
+    | 'OTHER'
+
+export interface CreatePostRequest {
+    title: string
+    content: string
+    type: PostType
+    category: PostCategory
+}
+
+export interface UpdatePostRequest {
+    title: string
+    content: string
+    category: PostCategory
+}
+
+export interface PostResponse {
+    id: number
+    userId: number
+    title: string
+    content: string
+    type: PostType
+    category: PostCategory
+    viewCount: number
+    likesCount: number
+    commentsCount: number
+    createdAt: string
+    updatedAt: string
+    likedByCurrentUser: boolean
+}
+
+export interface PostSearchParams {
+    keyword?: string
+    category?: PostCategory
+    type?: PostType
+    page?: number
+    size?: number
+}
