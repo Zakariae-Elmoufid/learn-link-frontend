@@ -349,3 +349,43 @@ export interface AddCommentRequest {
 
 /** @deprecated Use AddCommentRequest */
 export type CreatePostCommentRequest = AddCommentRequest
+
+// ─── Community / Questions & Answers ───────────────────────────────────────
+
+export interface AskQuestionRequest {
+    title: string
+    content: string
+}
+
+export interface ProvideAnswerRequest {
+    content: string
+}
+
+export type VoteType = 'UPVOTE' | 'DOWNVOTE'
+
+export interface AnswerResponse {
+    id: number
+    questionId: number
+    userId: number
+    content: string
+    voteCount: number
+    upvoteCount: number
+    downvoteCount: number
+    isAccepted: boolean
+    createdAt: string
+    updatedAt: string
+    votedByCurrentUser: boolean | null
+}
+
+export interface QuestionResponse {
+    id: number
+    userId: number
+    title: string
+    content: string
+    viewCount: number
+    isResolved: boolean
+    acceptedAnswerId: number | null
+    createdAt: string
+    updatedAt: string
+    answers: AnswerResponse[]
+}
