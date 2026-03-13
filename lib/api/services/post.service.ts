@@ -99,4 +99,5 @@ export const postService = {
     /** Unlike a post */
     unlike: (postId: number) =>
         apiClient.delete(`${BASE_URL}/${postId}/like`),
+
 }

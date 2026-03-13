@@ -331,3 +331,21 @@ export interface PostSearchParams {
     page?: number
     size?: number
 }
+
+export interface PostCommentResponse {
+    id: number
+    postId: number | null
+    answerId: number | null
+    userId: number
+    content: string
+    likesCount: number
+    createdAt: string
+    updatedAt: string
+}
+
+export interface AddCommentRequest {
+    content: string
+}
+
+/** @deprecated Use AddCommentRequest */
+export type CreatePostCommentRequest = AddCommentRequest

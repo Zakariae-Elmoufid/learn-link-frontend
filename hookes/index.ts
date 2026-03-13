@@ -692,5 +692,19 @@ export {
   useLikePost,
   useUnlikePost,
   useTogglePostLike,
+  usePostComments,
+  useCreatePostComment,
   postKeys,
 } from "./usePosts";
+
+export {
+  commentKeys,
+  useComments,
+  useAnswerComments,
+  useCreateComment,
+  useCreateAnswerComment,
+  useUpdateComment,
+  useDeleteComment,
+  useLikeComment,
+  useUnlikeComment,
+} from "./useComments";

@@ -6,9 +6,12 @@ import {
 } from "@tanstack/react-query";
 import { useMemo } from "react";
 import { postService } from "../lib/api/services/post.service";
+import { commentService } from "../lib/api/services/comment.service";
 import {
   CreatePostRequest,
+  AddCommentRequest,
   UpdatePostRequest,
+  PostCommentResponse,
   PostCategory,
   PostType,
   PostSearchParams,
@@ -33,9 +36,54 @@ export const postKeys = {
     [...postKeys.all, "user", userId, { page, size }] as const,
   search: (params: PostSearchParams) =>
     [...postKeys.all, "search", params] as const,
-  infinite: (filter?: string) =>
-    [...postKeys.all, "infinite", filter] as const,
+  infinite: (filter?: string) => [...postKeys.all, "infinite", filter] as const,
+  comments: (postId: number) => [...postKeys.all, postId, "comments"] as const,
 };
+
+type PostMutationContext = {
+  previousQueries: Array<[readonly unknown[], unknown]>;
+};
+
+function patchPostInCache(
+  oldData: any,
+  postId: number,
+  updater: (post: any) => any,
+) {
+  if (!oldData) return oldData;
+
+  // Single post detail cache
+  if (oldData?.id === postId) {
+    return updater(oldData);
+  }
+
+  // Paginated response: { content: PostResponse[], ... }
+  if (Array.isArray(oldData?.content)) {
+    return {
+      ...oldData,
+      content: oldData.content.map((post: any) =>
+        post?.id === postId ? updater(post) : post,
+      ),
+    };
+  }
+
+  // Infinite response: { pages: [{ content: PostResponse[], ... }], ... }
+  if (Array.isArray(oldData?.pages)) {
+    return {
+      ...oldData,
+      pages: oldData.pages.map((page: any) => {
+        if (!Array.isArray(page?.content)) return page;
+        return {
+          ...page,
+          content: page.content.map((post: any) =>
+            post?.id === postId ? updater(post) : post,
+          ),
+        };
+      }),
+    };
+  }
+
+  return oldData;
+}
 
 /**
  * Hook to fetch all posts with pagination
@@ -117,7 +165,7 @@ export function usePost(postId: number | null) {
 export function usePostsByCategory(
   category: PostCategory | null,
   page = 0,
-  size = 20
+  size = 20,
 ) {
   return useQuery({
     queryKey: postKeys.category(category!, page, size),
@@ -168,8 +216,7 @@ export function useSearchPosts(params: PostSearchParams) {
   return useQuery({
     queryKey: postKeys.search(params),
     queryFn: () => postService.search(params),
-    enabled:
-      !!params.keyword || !!params.category || !!params.type,
+    enabled: !!params.keyword || !!params.category || !!params.type,
     staleTime: 30 * 1000,
   });
 }
@@ -189,8 +236,7 @@ export function useCreatePost() {
       toast.success("Post published successfully!");
     },
     onError: (error: any) => {
-      const message =
-        error?.response?.data?.message || "Failed to create post";
+      const message = error?.response?.data?.message || "Failed to create post";
       toast.error(message);
     },
   });
@@ -218,8 +264,7 @@ export function useUpdatePost() {
       toast.success("Post updated successfully!");
     },
     onError: (error: any) => {
-      const message =
-        error?.response?.data?.message || "Failed to update post";
+      const message = error?.response?.data?.message || "Failed to update post";
       toast.error(message);
     },
   });
@@ -241,8 +286,7 @@ export function useDeletePost() {
       toast.success("Post deleted successfully!");
     },
     onError: (error: any) => {
-      const message =
-        error?.response?.data?.message || "Failed to delete post";
+      const message = error?.response?.data?.message || "Failed to delete post";
       toast.error(message);
     },
   });
@@ -256,36 +300,38 @@ export function useLikePost() {
 
   return useMutation({
     mutationFn: (postId: number) => postService.like(postId),
-    onMutate: async (postId) => {
-      // Cancel any outgoing refetches
-      await queryClient.cancelQueries({ queryKey: postKeys.detail(postId) });
+    onMutate: async (postId): Promise<PostMutationContext> => {
+      // Cancel outgoing refetches for all posts-related queries.
+      await queryClient.cancelQueries({ queryKey: postKeys.all });
 
-      // Snapshot the previous value
-      const previousPost = queryClient.getQueryData(postKeys.detail(postId));
-
-      // Optimistically update the post
-      queryClient.setQueryData(postKeys.detail(postId), (old: any) => {
-        if (!old) return old;
-        return {
-          ...old,
-          likesCount: old.likesCount + 1,
-          likedByCurrentUser: true,
-        };
+      // Snapshot every posts cache entry so rollback is complete.
+      const previousQueries = queryClient.getQueriesData({
+        queryKey: postKeys.all,
       });
 
-      return { previousPost };
+      // Optimistically update every cache where the post can appear.
+      queryClient.setQueriesData({ queryKey: postKeys.all }, (old: any) =>
+        patchPostInCache(old, postId, (post) => ({
+          ...post,
+          likesCount: (post.likesCount ?? 0) + 1,
+          likedByCurrentUser: true,
+        })),
+      );
+
+      return { previousQueries };
     },
     onError: (error, postId, context) => {
-      // Rollback on error
-      if (context?.previousPost) {
-        queryClient.setQueryData(postKeys.detail(postId), context.previousPost);
+      // Roll back every touched posts query on failure.
+      if (context?.previousQueries?.length) {
+        context.previousQueries.forEach(([queryKey, data]) => {
+          queryClient.setQueryData(queryKey, data);
+        });
       }
       toast.error("Failed to like post");
     },
-    onSettled: (_, __, postId) => {
-      // Refetch to ensure consistency
-      queryClient.invalidateQueries({ queryKey: postKeys.detail(postId) });
-      queryClient.invalidateQueries({ queryKey: postKeys.lists() });
+    onSettled: () => {
+      // Skip broad invalidation to avoid reloading the whole post list.
+      // Optimistic cache updates already keep the changed post in sync.
     },
   });
 }
@@ -298,36 +344,34 @@ export function useUnlikePost() {
 
   return useMutation({
     mutationFn: (postId: number) => postService.unlike(postId),
-    onMutate: async (postId) => {
-      // Cancel any outgoing refetches
-      await queryClient.cancelQueries({ queryKey: postKeys.detail(postId) });
+    onMutate: async (postId): Promise<PostMutationContext> => {
+      await queryClient.cancelQueries({ queryKey: postKeys.all });
 
-      // Snapshot the previous value
-      const previousPost = queryClient.getQueryData(postKeys.detail(postId));
-
-      // Optimistically update the post
-      queryClient.setQueryData(postKeys.detail(postId), (old: any) => {
-        if (!old) return old;
-        return {
-          ...old,
-          likesCount: Math.max(0, old.likesCount - 1),
-          likedByCurrentUser: false,
-        };
+      const previousQueries = queryClient.getQueriesData({
+        queryKey: postKeys.all,
       });
 
-      return { previousPost };
+      queryClient.setQueriesData({ queryKey: postKeys.all }, (old: any) =>
+        patchPostInCache(old, postId, (post) => ({
+          ...post,
+          likesCount: Math.max(0, (post.likesCount ?? 0) - 1),
+          likedByCurrentUser: false,
+        })),
+      );
+
+      return { previousQueries };
     },
     onError: (error, postId, context) => {
-      // Rollback on error
-      if (context?.previousPost) {
-        queryClient.setQueryData(postKeys.detail(postId), context.previousPost);
+      if (context?.previousQueries?.length) {
+        context.previousQueries.forEach(([queryKey, data]) => {
+          queryClient.setQueryData(queryKey, data);
+        });
       }
       toast.error("Failed to unlike post");
     },
-    onSettled: (_, __, postId) => {
-      // Refetch to ensure consistency
-      queryClient.invalidateQueries({ queryKey: postKeys.detail(postId) });
-      queryClient.invalidateQueries({ queryKey: postKeys.lists() });
+    onSettled: () => {
+      // Skip broad invalidation to avoid reloading the whole post list.
+      // Optimistic cache updates already keep the changed post in sync.
     },
   });
 }
@@ -349,4 +393,60 @@ export function useTogglePostLike() {
     },
     isLoading: likeMutation.isPending || unlikeMutation.isPending,
   };
+}
+
+/**
+ * Hook to fetch comments for a post
+ * @deprecated Prefer useComments from useComments.ts
+ */
+export function usePostComments(postId: number | null) {
+  return useQuery({
+    queryKey: postKeys.comments(postId!),
+    queryFn: () => commentService.getByPost(postId!),
+    enabled: !!postId,
+    staleTime: 15 * 1000,
+  });
+}
+
+/**
+ * Hook to create a comment on a post
+ * @deprecated Prefer useCreateComment from useComments.ts
+ */
+export function useCreatePostComment() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: ({
+      postId,
+      data,
+    }: {
+      postId: number;
+      data: AddCommentRequest;
+    }) => commentService.createForPost(postId, data),
+    onSuccess: (comment: PostCommentResponse, { postId }) => {
+      // Add comment to the comments list cache.
+      queryClient.setQueryData(
+        postKeys.comments(postId),
+        (old: PostCommentResponse[] | undefined) => {
+          if (!old) return [comment];
+          return [comment, ...old];
+        },
+      );
+
+      // Update comments counter on every posts cache where this post appears.
+      queryClient.setQueriesData({ queryKey: postKeys.all }, (old: any) =>
+        patchPostInCache(old, postId, (post) => ({
+          ...post,
+          commentsCount: (post.commentsCount ?? 0) + 1,
+        })),
+      );
+
+      toast.success("Comment added");
+    },
+    onError: (error: any) => {
+      const message =
+        error?.response?.data?.message || "Failed to add comment";
+      toast.error(message);
+    },
+  });
 }
