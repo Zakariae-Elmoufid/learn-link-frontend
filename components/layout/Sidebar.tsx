@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import type { Route } from "next";
 import { usePathname } from "next/navigation";
 import {
   Home,
@@ -8,6 +9,7 @@ import {
   BookOpen,
   Users,
   MessageSquare,
+  Globe,
   Bell,
   Settings,
   LogOut,
@@ -54,6 +56,11 @@ const mainNavItems: NavItem[] = [
     label: "Messages",
     href: "/student/messages",
     icon: <MessageSquare className="h-5 w-5" />,
+  },
+  {
+    label: "Community",
+    href: "/student/community",
+    icon: <Globe className="h-5 w-5" />,
   },
   {
     label: "Schedule",
@@ -104,7 +111,7 @@ export function Sidebar() {
             return (
               <Link
                 key={item.href}
-                href={item.href}
+                href={item.href as Route}
                 className={cn(
                   "flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-colors",
                   isActive
@@ -126,7 +133,7 @@ export function Sidebar() {
             return (
               <Link
                 key={item.href}
-                href={item.href}
+                href={item.href as Route}
                 className={cn(
                   "flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-colors",
                   isActive

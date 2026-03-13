@@ -117,9 +117,6 @@ export const groupsService = {
     updateMemberRole: (groupId: number, memberId: number, role: GroupRole) =>
         apiClient.put(`/groups/${groupId}/members/${memberId}/role`, null, { params: { role } }),
 
-    // ─── Image Upload ────────────────────────────────────────────────────────
-
-    /** Upload cover image for a study group */
     uploadImage: (groupId: number, file: File) => {
         const formData = new FormData()
         formData.append('file', file)
@@ -129,4 +126,7 @@ export const groupsService = {
             })
             .then((r) => r.data)
     },
+
 }
+
+

@@ -278,3 +278,114 @@ export interface StudyGroupResponse {
     hasPendingRequest: boolean
     members?: GroupMember[]
 }
+
+// ─── Community / Posts ───────────────────────────────────────────────────────
+
+export type PostType = 'SUMMARY' | 'TUTORIAL' | 'DISCUSSION'
+
+export type PostCategory =
+    | 'MATHEMATICS'
+    | 'SCIENCE'
+    | 'LANGUAGES'
+    | 'PROGRAMMING'
+    | 'HISTORY'
+    | 'LITERATURE'
+    | 'PHYSICS'
+    | 'CHEMISTRY'
+    | 'BIOLOGY'
+    | 'ECONOMICS'
+    | 'OTHER'
+
+export interface CreatePostRequest {
+    title: string
+    content: string
+    type: PostType
+    category: PostCategory
+}
+
+export interface UpdatePostRequest {
+    title: string
+    content: string
+    category: PostCategory
+}
+
+export interface PostResponse {
+    id: number
+    userId: number
+    title: string
+    content: string
+    type: PostType
+    category: PostCategory
+    viewCount: number
+    likesCount: number
+    commentsCount: number
+    createdAt: string
+    updatedAt: string
+    likedByCurrentUser: boolean
+}
+
+export interface PostSearchParams {
+    keyword?: string
+    category?: PostCategory
+    type?: PostType
+    page?: number
+    size?: number
+}
+
+export interface PostCommentResponse {
+    id: number
+    postId: number | null
+    answerId: number | null
+    userId: number
+    content: string
+    likesCount: number
+    createdAt: string
+    updatedAt: string
+}
+
+export interface AddCommentRequest {
+    content: string
+}
+
+/** @deprecated Use AddCommentRequest */
+export type CreatePostCommentRequest = AddCommentRequest
+
+// ─── Community / Questions & Answers ───────────────────────────────────────
+
+export interface AskQuestionRequest {
+    title: string
+    content: string
+}
+
+export interface ProvideAnswerRequest {
+    content: string
+}
+
+export type VoteType = 'UPVOTE' | 'DOWNVOTE'
+
+export interface AnswerResponse {
+    id: number
+    questionId: number
+    userId: number
+    content: string
+    voteCount: number
+    upvoteCount: number
+    downvoteCount: number
+    isAccepted: boolean
+    createdAt: string
+    updatedAt: string
+    votedByCurrentUser: boolean | null
+}
+
+export interface QuestionResponse {
+    id: number
+    userId: number
+    title: string
+    content: string
+    viewCount: number
+    isResolved: boolean
+    acceptedAnswerId: number | null
+    createdAt: string
+    updatedAt: string
+    answers: AnswerResponse[]
+}
