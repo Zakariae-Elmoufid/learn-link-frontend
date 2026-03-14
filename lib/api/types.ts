@@ -389,3 +389,36 @@ export interface QuestionResponse {
     updatedAt: string
     answers: AnswerResponse[]
 }
+
+// ─── Planner ─────────────────────────────────────────────────────────────────
+
+export type TaskPriority = 'LOW' | 'MEDIUM' | 'HIGH'
+export type TaskStatus = 'PENDING' | 'IN_PROGRESS' | 'COMPLETED' | 'CANCELLED'
+
+export interface TaskRequest {
+    title: string
+    description?: string
+    startTime: string
+    endTime: string
+    priority: TaskPriority
+    subject?: string
+    tags?: string[]
+}
+
+export interface TaskResponse {
+    id: number
+    userId: number
+    title: string
+    description?: string
+    startTime: string
+    endTime: string
+    priority: TaskPriority
+    status: TaskStatus
+    completed: boolean
+    completedAt?: string | null
+    subject?: string
+    tags: string[]
+    createdAt: string
+    updatedAt: string
+    isOverdue: boolean
+}
