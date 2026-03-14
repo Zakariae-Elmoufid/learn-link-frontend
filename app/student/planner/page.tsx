@@ -1,16 +1,240 @@
 'use client'
 
-import { useState, useMemo } from 'react'
-import {
-    useTasks,
-    useCreateTask,
-    useCompleteTask,
-    useDeleteTask,
-} from '@/hookes'
-import { TaskRequest, TaskPriority } from '@/lib/api/types'
+import { useState } from 'react'
 import toast from 'react-hot-toast'
+import { Trash2 } from 'lucide-react'
+import { useTasks, useCreateTask, useCompleteTask, useDeleteTask, useUpdateTask } from '@/hookes/usePlanner'
+import { TaskRequest, TaskResponse } from '@/lib/api/types'
 
 type ViewType = 'month' | 'week' | 'day'
+
+interface TaskDetailModalProps {
+    isOpen: boolean
+    task: any
+    onClose: () => void
+    onComplete: (id: number) => void
+    onDelete: (id: number) => void
+    onUpdate: (id: number, data: TaskRequest) => Promise<void>
+    isLoading: boolean
+}
+
+function TaskDetailModal({ isOpen, task, onClose, onComplete, onDelete, onUpdate, isLoading }: TaskDetailModalProps) {
+    const [isEditing, setIsEditing] = useState(false)
+    const [formData, setFormData] = useState<TaskRequest | null>(null)
+
+    if (!isOpen || !task) return null
+
+    const getCategoryColor = (subject: string) => {
+        const colors: any = {
+            'Data Structures': 'bg-blue-100 text-blue-800',
+            'Study Group': 'bg-green-100 text-green-800',
+            'ML Assignment': 'bg-red-100 text-red-800',
+            'Lecture': 'bg-blue-100 text-blue-800',
+            'Assignment': 'bg-red-100 text-red-800',
+            'Exam': 'bg-red-100 text-red-800',
+            'Other': 'bg-gray-100 text-gray-800',
+        }
+        return colors[subject] || 'bg-gray-100 text-gray-800'
+    }
+
+    const formatTime = (dateTime: string) => {
+        const date = new Date(dateTime)
+        return date.toLocaleString('en-US', { 
+            month: 'short', 
+            day: 'numeric', 
+            year: 'numeric',
+            hour: 'numeric', 
+            minute: '2-digit',
+            hour12: true 
+        })
+    }
+
+    const handleSaveUpdate = async () => {
+        if (!formData) return
+        try {
+            await onUpdate(task.id, formData)
+            setIsEditing(false)
+            toast.success('Task updated successfully')
+        } catch (error) {
+            toast.error('Failed to update task')
+        }
+    }
+
+    return (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+            <div className="bg-white rounded-lg shadow-lg p-6 w-full max-w-md max-h-96 overflow-y-auto">
+                <div className="flex justify-between items-start mb-4">
+                    <h2 className="text-2xl font-bold text-gray-900">{task.title}</h2>
+                    <button
+                        onClick={() => onDelete(task.id)}
+                        disabled={isLoading}
+                        className="text-red-600 hover:text-red-700 transition-colors p-1"
+                        title="Delete task"
+                    >
+                        <Trash2 size={20} />
+                    </button>
+                </div>
+
+                {!isEditing ? (
+                    <>
+                        <div className="space-y-4 mb-6">
+                            {task.subject && (
+                                <div>
+                                    <label className="text-xs font-semibold text-gray-600 uppercase">Category</label>
+                                    <p className={`text-sm font-medium px-3 py-1 rounded inline-block ${getCategoryColor(task.subject)}`}>
+                                        {task.subject}
+                                    </p>
+                                </div>
+                            )}
+
+                            <div>
+                                <label className="text-xs font-semibold text-gray-600 uppercase">Start</label>
+                                <p className="text-sm text-gray-900">{formatTime(task.startTime)}</p>
+                            </div>
+
+                            <div>
+                                <label className="text-xs font-semibold text-gray-600 uppercase">End</label>
+                                <p className="text-sm text-gray-900">{formatTime(task.endTime)}</p>
+                            </div>
+
+                            {task.description && (
+                                <div>
+                                    <label className="text-xs font-semibold text-gray-600 uppercase">Description</label>
+                                    <p className="text-sm text-gray-900">{task.description}</p>
+                                </div>
+                            )}
+
+                            <div>
+                                <label className="text-xs font-semibold text-gray-600 uppercase">Status</label>
+                                <p className={`text-sm font-medium ${task.completed ? 'text-green-600' : 'text-yellow-600'}`}>
+                                    {task.completed ? '✓ COMPLETED' : '● Pending'}
+                                </p>
+                            </div>
+                        </div>
+
+                        <div className="flex gap-3">
+                            {!task.completed && (
+                                <button
+                                    onClick={() => {
+                                        onComplete(task.id)
+                                        onClose()
+                                    }}
+                                    disabled={isLoading}
+                                    className="flex-1 bg-green-500 hover:bg-green-600 disabled:bg-green-400 text-white font-medium py-2 px-4 rounded-md transition-colors"
+                                >
+                                    ✓ Mark Completed
+                                </button>
+                            )}
+                            <button
+                                onClick={() => {
+                                    setFormData({
+                                        title: task.title,
+                                        description: task.description,
+                                        startTime: task.startTime,
+                                        endTime: task.endTime,
+                                        priority: task.priority,
+                                        subject: task.subject,
+                                    })
+                                    setIsEditing(true)
+                                }}
+                                className="flex-1 bg-blue-500 hover:bg-blue-600 text-white font-medium py-2 px-4 rounded-md transition-colors"
+                            >
+                                Edit
+                            </button>
+                            <button
+                                onClick={onClose}
+                                className="flex-1 bg-gray-300 hover:bg-gray-400 text-gray-900 font-medium py-2 px-4 rounded-md transition-colors"
+                            >
+                                Close
+                            </button>
+                        </div>
+                    </>
+                ) : (
+                    <>
+                        <form className="space-y-4 mb-6" onSubmit={(e) => {
+                            e.preventDefault()
+                            handleSaveUpdate()
+                        }}>
+                            <div>
+                                <label className="block text-sm font-medium text-gray-700 mb-1">Title *</label>
+                                <input
+                                    type="text"
+                                    value={formData?.title || ''}
+                                    onChange={(e) => setFormData({ ...formData!, title: e.target.value })}
+                                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                />
+                            </div>
+
+                            <div>
+                                <label className="block text-sm font-medium text-gray-700 mb-1">Description</label>
+                                <textarea
+                                    value={formData?.description || ''}
+                                    onChange={(e) => setFormData({ ...formData!, description: e.target.value })}
+                                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                    rows={2}
+                                />
+                            </div>
+
+                            <div>
+                                <label className="block text-sm font-medium text-gray-700 mb-1">Start Date & Time</label>
+                                <input
+                                    type="datetime-local"
+                                    value={formData?.startTime?.slice(0, 16) || ''}
+                                    onChange={(e) => setFormData({ ...formData!, startTime: new Date(e.target.value).toISOString() })}
+                                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                />
+                            </div>
+
+                            <div>
+                                <label className="block text-sm font-medium text-gray-700 mb-1">End Date & Time</label>
+                                <input
+                                    type="datetime-local"
+                                    value={formData?.endTime?.slice(0, 16) || ''}
+                                    onChange={(e) => setFormData({ ...formData!, endTime: new Date(e.target.value).toISOString() })}
+                                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                />
+                            </div>
+
+                            <div>
+                                <label className="block text-sm font-medium text-gray-700 mb-1">Category</label>
+                                <select
+                                    value={formData?.subject || 'Other'}
+                                    onChange={(e) => setFormData({ ...formData!, subject: e.target.value })}
+                                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                >
+                                    <option>Other</option>
+                                    <option>Data Structures</option>
+                                    <option>Study Group</option>
+                                    <option>ML Assignment</option>
+                                    <option>Lecture</option>
+                                    <option>Assignment</option>
+                                    <option>Exam</option>
+                                </select>
+                            </div>
+
+                            <div className="flex gap-3 pt-4">
+                                <button
+                                    type="submit"
+                                    disabled={isLoading}
+                                    className="flex-1 bg-green-500 hover:bg-green-600 disabled:bg-green-400 text-white font-medium py-2 px-4 rounded-md transition-colors"
+                                >
+                                    Save
+                                </button>
+                                <button
+                                    type="button"
+                                    onClick={() => setIsEditing(false)}
+                                    className="flex-1 bg-gray-300 hover:bg-gray-400 text-gray-900 font-medium py-2 px-4 rounded-md transition-colors"
+                                >
+                                    Cancel
+                                </button>
+                            </div>
+                        </form>
+                    </>
+                )}
+            </div>
+        </div>
+    )
+}
 
 interface CreateTaskModalProps {
     isOpen: boolean
@@ -20,32 +244,50 @@ interface CreateTaskModalProps {
 }
 
 function CreateTaskModal({ isOpen, onClose, onSubmit, isLoading }: CreateTaskModalProps) {
-    const [formData, setFormData] = useState<TaskRequest>({
+    const [formData, setFormData] = useState({
         title: '',
         description: '',
-        startTime: new Date().toISOString().slice(0, 16),
-        endTime: new Date(Date.now() + 60 * 60 * 1000).toISOString().slice(0, 16),
-        priority: 'MEDIUM',
-        subject: '',
-        tags: [],
+        startDate: '',
+        startTime: '',
+        endDate: '',
+        endTime: '',
+        category: 'Other',
     })
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault()
+        
+        if (!formData.title || !formData.startDate || !formData.startTime || !formData.endDate || !formData.endTime) {
+            toast.error('Please fill in all required fields')
+            return
+        }
+
+        const startDateTime = `${formData.startDate}T${formData.startTime}`
+        const endDateTime = `${formData.endDate}T${formData.endTime}`
+
+        const taskData: TaskRequest = {
+            title: formData.title,
+            description: formData.description || undefined,
+            startTime: startDateTime,
+            endTime: endDateTime,
+            priority: 'MEDIUM',
+            subject: formData.category,
+        }
+
         try {
-            await onSubmit(formData)
+            await onSubmit(taskData)
             setFormData({
                 title: '',
                 description: '',
-                startTime: new Date().toISOString().slice(0, 16),
-                endTime: new Date(Date.now() + 60 * 60 * 1000).toISOString().slice(0, 16),
-                priority: 'MEDIUM',
-                subject: '',
-                tags: [],
+                startDate: '',
+                startTime: '',
+                endDate: '',
+                endTime: '',
+                category: 'Other',
             })
             onClose()
         } catch (error) {
-            // Error handled by mutation
+            // Error handled by parent
         }
     }
 
@@ -54,136 +296,90 @@ function CreateTaskModal({ isOpen, onClose, onSubmit, isLoading }: CreateTaskMod
     return (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
             <div className="bg-white rounded-lg shadow-lg p-6 w-full max-w-md">
-                <div className="flex justify-between items-center mb-2">
-                    <h2 className="text-xl font-bold text-gray-900">Add New Event</h2>
-                    <button
-                        onClick={onClose}
-                        className="text-gray-500 hover:text-gray-700 text-2xl"
-                    >
-                        ×
-                    </button>
-                </div>
-                <p className="text-gray-600 text-sm mb-6">Schedule a new event in your planner.</p>
-
+                <h2 className="text-2xl font-bold text-gray-900 mb-4">Add Event</h2>
                 <form onSubmit={handleSubmit} className="space-y-4">
                     <div>
-                        <label className="block text-sm font-medium text-gray-900 mb-1">
-                            Title *
-                        </label>
+                        <label className="block text-sm font-medium text-gray-700 mb-1">Title *</label>
                         <input
                             type="text"
-                            required
-                            minLength={3}
-                            maxLength={255}
                             value={formData.title}
                             onChange={(e) => setFormData({ ...formData, title: e.target.value })}
-                            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm"
-                            placeholder="e.g. Algorithms Lecture"
+                            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                            placeholder="Event title"
                         />
                     </div>
 
                     <div>
-                        <label className="block text-sm font-medium text-gray-900 mb-1">
-                            Description
-                        </label>
+                        <label className="block text-sm font-medium text-gray-700 mb-1">Description</label>
                         <textarea
-                            maxLength={500}
-                            value={formData.description || ''}
+                            value={formData.description}
                             onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-                            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm"
-                            placeholder="Location or notes..."
+                            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                            placeholder="Event description"
                             rows={3}
                         />
                     </div>
 
-                    <div className="space-y-4">
-                        <div className="grid grid-cols-2 gap-4">
-                            <div>
-                                <label className="block text-sm font-medium text-gray-900 mb-1">
-                                    Start Date *
-                                </label>
-                                <input
-                                    type="date"
-                                    required
-                                    value={formData.startTime.split('T')[0]}
-                                    onChange={(e) => {
-                                        const time = formData.startTime.split('T')[1] || '09:00'
-                                        setFormData({ ...formData, startTime: `${e.target.value}T${time}` })
-                                    }}
-                                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm"
-                                />
-                            </div>
-
-                            <div>
-                                <label className="block text-sm font-medium text-gray-900 mb-1">
-                                    Start Time
-                                </label>
-                                <input
-                                    type="time"
-                                    required
-                                    value={formData.startTime.split('T')[1] || '09:00'}
-                                    onChange={(e) => {
-                                        const date = formData.startTime.split('T')[0]
-                                        setFormData({ ...formData, startTime: `${date}T${e.target.value}` })
-                                    }}
-                                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm"
-                                />
-                            </div>
+                    <div className="grid grid-cols-2 gap-4">
+                        <div>
+                            <label className="block text-sm font-medium text-gray-700 mb-1">Start Date *</label>
+                            <input
+                                type="date"
+                                value={formData.startDate}
+                                onChange={(e) => setFormData({ ...formData, startDate: e.target.value })}
+                                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                            />
                         </div>
+                        <div>
+                            <label className="block text-sm font-medium text-gray-700 mb-1">Start Time *</label>
+                            <input
+                                type="time"
+                                value={formData.startTime}
+                                onChange={(e) => setFormData({ ...formData, startTime: e.target.value })}
+                                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                            />
+                        </div>
+                    </div>
 
-                        <div className="grid grid-cols-2 gap-4">
-                            <div>
-                                <label className="block text-sm font-medium text-gray-900 mb-1">
-                                    End Date *
-                                </label>
-                                <input
-                                    type="date"
-                                    required
-                                    value={formData.endTime.split('T')[0]}
-                                    onChange={(e) => {
-                                        const time = formData.endTime.split('T')[1] || '10:00'
-                                        setFormData({ ...formData, endTime: `${e.target.value}T${time}` })
-                                    }}
-                                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm"
-                                />
-                            </div>
-
-                            <div>
-                                <label className="block text-sm font-medium text-gray-900 mb-1">
-                                    End Time
-                                </label>
-                                <input
-                                    type="time"
-                                    required
-                                    value={formData.endTime.split('T')[1] || '10:00'}
-                                    onChange={(e) => {
-                                        const date = formData.endTime.split('T')[0]
-                                        setFormData({ ...formData, endTime: `${date}T${e.target.value}` })
-                                    }}
-                                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm"
-                                />
-                            </div>
+                    <div className="grid grid-cols-2 gap-4">
+                        <div>
+                            <label className="block text-sm font-medium text-gray-700 mb-1">End Date *</label>
+                            <input
+                                type="date"
+                                value={formData.endDate}
+                                onChange={(e) => setFormData({ ...formData, endDate: e.target.value })}
+                                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                            />
+                        </div>
+                        <div>
+                            <label className="block text-sm font-medium text-gray-700 mb-1">End Time *</label>
+                            <input
+                                type="time"
+                                value={formData.endTime}
+                                onChange={(e) => setFormData({ ...formData, endTime: e.target.value })}
+                                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                            />
                         </div>
                     </div>
 
                     <div>
-                        <label className="block text-sm font-medium text-gray-900 mb-1">
-                            Category
-                        </label>
+                        <label className="block text-sm font-medium text-gray-700 mb-1">Category</label>
                         <select
-                            value={formData.subject || 'Lecture'}
-                            onChange={(e) => setFormData({ ...formData, subject: e.target.value })}
-                            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm"
+                            value={formData.category}
+                            onChange={(e) => setFormData({ ...formData, category: e.target.value })}
+                            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                         >
-                            <option value="Lecture">Lecture</option>
-                            <option value="Assignment">Assignment</option>
-                            <option value="Study Group">Study Group</option>
-                            <option value="Exam">Exam</option>
-                            <option value="Other">Other</option>
+                            <option>Other</option>
+                            <option>Data Structures</option>
+                            <option>Study Group</option>
+                            <option>ML Assignment</option>
+                            <option>Lecture</option>
+                            <option>Assignment</option>
+                            <option>Exam</option>
                         </select>
                     </div>
 
-                    <div className="flex gap-3 justify-end pt-4 border-t border-gray-200">
+                    <div className="flex gap-3 pt-4">
                         <button
                             type="button"
                             onClick={onClose}
@@ -205,14 +401,13 @@ function CreateTaskModal({ isOpen, onClose, onSubmit, isLoading }: CreateTaskMod
     )
 }
 
-function MonthView({ tasks, currentDate, onDateChange }: any) {
+function MonthView({ tasks, currentDate, onDateChange, onTaskClick }: any) {
     const daysInMonth = (date: Date) => new Date(date.getFullYear(), date.getMonth() + 1, 0).getDate()
     const firstDayOfMonth = (date: Date) => new Date(date.getFullYear(), date.getMonth(), 1).getDay()
 
-    const monthName = currentDate.toLocaleString('default', { month: 'long', year: 'numeric' })
     const maxDays = daysInMonth(currentDate)
     const startDay = firstDayOfMonth(currentDate)
-
+    const monthName = currentDate.toLocaleString('default', { month: 'long', year: 'numeric' })
     const dayLabels = ['SUN', 'MON', 'TUE', 'WED', 'THU', 'FRI', 'SAT']
 
     const getTasksForDate = (day: number) => {
@@ -265,7 +460,8 @@ function MonthView({ tasks, currentDate, onDateChange }: any) {
                             {getTasksForDate(day).map((task: any) => (
                                 <div
                                     key={task.id}
-                                    className={`text-xs px-2 py-1 rounded truncate ${getCategoryColor(task.subject || 'Other')}`}
+                                    onClick={() => onTaskClick(task)}
+                                    className={`text-xs px-2 py-1 rounded truncate cursor-pointer hover:shadow-md transition-shadow ${getCategoryColor(task.subject || 'Other')}`}
                                 >
                                     {task.title}
                                 </div>
@@ -278,7 +474,7 @@ function MonthView({ tasks, currentDate, onDateChange }: any) {
     )
 }
 
-function WeekView({ tasks, currentDate, onDateChange, onConfirm, onCancel }: any) {
+function WeekView({ tasks, currentDate, onDateChange, onConfirm, onCancel, onTaskClick }: any) {
     const getWeekStart = (date: Date) => {
         const d = new Date(date)
         const day = d.getDay()
@@ -342,7 +538,8 @@ function WeekView({ tasks, currentDate, onDateChange, onConfirm, onCancel }: any
                                 {getTasksForDate(date).map((task: any) => (
                                     <div
                                         key={task.id}
-                                        className={`p-3 rounded-lg text-sm ${getCategoryColor(task.subject || 'Other')}`}
+                                        onClick={() => onTaskClick(task)}
+                                        className={`p-3 rounded-lg text-sm cursor-pointer hover:shadow-md transition-shadow ${getCategoryColor(task.subject || 'Other')}`}
                                     >
                                         <p className="font-semibold text-sm">{task.startTime.split('T')[1]?.slice(0, 5)}</p>
                                         <p className="font-medium">{task.title}</p>
@@ -352,13 +549,19 @@ function WeekView({ tasks, currentDate, onDateChange, onConfirm, onCancel }: any
                                         {!task.completed && (
                                             <div className="flex gap-2 mt-3">
                                                 <button
-                                                    onClick={() => onConfirm(task.id)}
+                                                    onClick={(e) => {
+                                                        e.stopPropagation()
+                                                        onConfirm(task.id)
+                                                    }}
                                                     className="flex-1 text-xs bg-green-500 hover:bg-green-600 text-white px-2 py-1 rounded transition-colors font-medium"
                                                 >
                                                     Confirm
                                                 </button>
                                                 <button
-                                                    onClick={() => onCancel(task.id)}
+                                                    onClick={(e) => {
+                                                        e.stopPropagation()
+                                                        onCancel(task.id)
+                                                    }}
                                                     className="flex-1 text-xs bg-red-500 hover:bg-red-600 text-white px-2 py-1 rounded transition-colors font-medium"
                                                 >
                                                     Cancel
@@ -376,7 +579,7 @@ function WeekView({ tasks, currentDate, onDateChange, onConfirm, onCancel }: any
     )
 }
 
-function DayView({ tasks, currentDate, onConfirm, onCancel }: any) {
+function DayView({ tasks, currentDate, onConfirm, onCancel, onTaskClick }: any) {
     const dayName = currentDate.toLocaleString('default', { weekday: 'long' })
     const fullDate = `${dayName}, ${currentDate.toLocaleString('default', { month: 'long' })} ${currentDate.getDate()}`
 
@@ -411,7 +614,7 @@ function DayView({ tasks, currentDate, onConfirm, onCancel }: any) {
                     dayTasks.map((task: any) => {
                         const time = task.startTime.split('T')[1]?.slice(0, 5)
                         return (
-                            <div key={task.id} className={`p-6 rounded-lg ${getCategoryColor(task.subject || 'Other')}`}>
+                            <div key={task.id} onClick={() => onTaskClick(task)} className={`p-6 rounded-lg cursor-pointer hover:shadow-lg transition-shadow ${getCategoryColor(task.subject || 'Other')}`}>
                                 <div className="flex items-start justify-between gap-4 mb-4">
                                     <div>
                                         <p className="text-lg font-bold">{time}</p>
@@ -419,13 +622,19 @@ function DayView({ tasks, currentDate, onConfirm, onCancel }: any) {
                                     {!task.completed && (
                                         <div className="flex gap-2">
                                             <button
-                                                onClick={() => onConfirm(task.id)}
+                                                onClick={(e) => {
+                                                    e.stopPropagation()
+                                                    onConfirm(task.id)
+                                                }}
                                                 className="text-sm bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded transition-colors font-medium"
                                             >
                                                 Complete
                                             </button>
                                             <button
-                                                onClick={() => onCancel(task.id)}
+                                                onClick={(e) => {
+                                                    e.stopPropagation()
+                                                    onCancel(task.id)
+                                                }}
                                                 className="text-sm bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded transition-colors font-medium"
                                             >
                                                 Cancel
@@ -456,7 +665,10 @@ export default function PlannerPage() {
     const createTaskMutation = useCreateTask()
     const completeTaskMutation = useCompleteTask()
     const deleteTaskMutation = useDeleteTask()
+    const updateTaskMutation = useUpdateTask()
     const [isModalOpen, setIsModalOpen] = useState(false)
+    const [isDetailModalOpen, setIsDetailModalOpen] = useState(false)
+    const [selectedTask, setSelectedTask] = useState<any>(null)
     const [view, setView] = useState<ViewType>('month')
     const [currentDate, setCurrentDate] = useState(new Date(2026, 2, 14)) // March 14, 2026
 
@@ -484,6 +696,42 @@ export default function PlannerPage() {
             toast.success('Event cancelled')
         } catch (error) {
             toast.error('Failed to cancel event')
+        }
+    }
+
+    const handleTaskClick = (task: any) => {
+        setSelectedTask(task)
+        setIsDetailModalOpen(true)
+    }
+
+    const handleCompleteFromDetail = async (taskId: number) => {
+        try {
+            await completeTaskMutation.mutateAsync(taskId)
+            setIsDetailModalOpen(false)
+            setSelectedTask(null)
+            toast.success('Event marked as completed!')
+        } catch (error) {
+            toast.error('Failed to mark event as completed')
+        }
+    }
+
+    const handleDeleteFromDetail = async (taskId: number) => {
+        try {
+            await deleteTaskMutation.mutateAsync(taskId)
+            setIsDetailModalOpen(false)
+            setSelectedTask(null)
+            toast.success('Event deleted')
+        } catch (error) {
+            toast.error('Failed to delete event')
+        }
+    }
+
+    const handleUpdateTask = async (taskId: number, data: TaskRequest) => {
+        try {
+            await updateTaskMutation.mutateAsync({ taskId, data })
+            toast.success('Event updated successfully')
+        } catch (error) {
+            toast.error('Failed to update event')
         }
     }
 
@@ -568,7 +816,12 @@ export default function PlannerPage() {
                 ) : (
                     <div className="bg-white rounded-lg p-6 border border-gray-200">
                         {view === 'month' && (
-                            <MonthView tasks={allTasks} currentDate={currentDate} onDateChange={setCurrentDate} />
+                            <MonthView 
+                                tasks={allTasks} 
+                                currentDate={currentDate} 
+                                onDateChange={setCurrentDate}
+                                onTaskClick={handleTaskClick}
+                            />
                         )}
                         {view === 'week' && (
                             <WeekView 
@@ -577,6 +830,7 @@ export default function PlannerPage() {
                                 onDateChange={setCurrentDate}
                                 onConfirm={handleConfirmTask}
                                 onCancel={handleCancelTask}
+                                onTaskClick={handleTaskClick}
                             />
                         )}
                         {view === 'day' && (
@@ -585,6 +839,7 @@ export default function PlannerPage() {
                                 currentDate={currentDate}
                                 onConfirm={handleConfirmTask}
                                 onCancel={handleCancelTask}
+                                onTaskClick={handleTaskClick}
                             />
                         )}
                     </div>
@@ -597,6 +852,20 @@ export default function PlannerPage() {
                 onClose={() => setIsModalOpen(false)}
                 onSubmit={handleCreateTask}
                 isLoading={createTaskMutation.isPending}
+            />
+
+            {/* Task Detail Modal */}
+            <TaskDetailModal
+                isOpen={isDetailModalOpen}
+                task={selectedTask}
+                onClose={() => {
+                    setIsDetailModalOpen(false)
+                    setSelectedTask(null)
+                }}
+                onComplete={handleCompleteFromDetail}
+                onDelete={handleDeleteFromDetail}
+                onUpdate={handleUpdateTask}
+                isLoading={completeTaskMutation.isPending || deleteTaskMutation.isPending || updateTaskMutation.isPending}
             />
         </div>
     )
