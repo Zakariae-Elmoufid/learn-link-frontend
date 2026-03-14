@@ -70,13 +70,13 @@ export const gamificationService = {
 
     // ─── User Badges ─────────────────────────────────────────────────────────
 
-    /** Get all badges earned by a user */
+    /** Get all achievements earned by a user */
     getUserBadges: (userId: number) =>
         apiClient
             .get<UserBadgeResponse[]>(`${BASE_URL}/user-badges/${userId}`)
             .then((r) => r.data),
 
-    /** Get count of badges earned by a user */
+    /** Get count of achievements earned by a user */
     getUserBadgesCount: (userId: number) =>
         apiClient
             .get<number>(`${BASE_URL}/user-badges/${userId}/count`)
@@ -106,13 +106,13 @@ export const gamificationService = {
             .get<BadgeResponse>(`${BASE_URL}/badges/code/${code}`)
             .then((r) => r.data),
 
-    /** Get all badges */
+    /** Get all achievements */
     getAllBadges: () =>
         apiClient
             .get<BadgeResponse[]>(`${BASE_URL}/badges`)
             .then((r) => r.data),
 
-    /** Get all active badges */
+    /** Get all active achievements */
     getActiveBadges: () =>
         apiClient
             .get<BadgeResponse[]>(`${BASE_URL}/badges/active`)

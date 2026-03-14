@@ -4,7 +4,7 @@ export { subjectService } from './subject.service'
 export { messageService } from './message.service'
 export { matchingService } from './matching.service'
 export { connectionsService } from './connections.service'
-export { groupsService } from './groups.service'
+
 export { postService } from './post.service'
 export { commentService } from './comment.service'
 export { questionService } from './question.service'

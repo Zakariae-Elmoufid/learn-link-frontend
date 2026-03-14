@@ -25,7 +25,7 @@ export function ConversationList({
     isLoading,
 }: ConversationListProps) {
     const [recentChatsExpanded, setRecentChatsExpanded] = useState(true)
-    const [studyGroupsExpanded, setStudyGroupsExpanded] = useState(true)
+
 
     // Filter conversations based on search query
     const filteredConversations = conversations.filter((conv) =>
@@ -33,10 +33,7 @@ export function ConversationList({
         conv.lastMessage?.toLowerCase().includes(searchQuery.toLowerCase())
     )
 
-    // For now, we'll show all as "Recent Chats"
-    // In the future, you can separate study groups based on a flag
     const recentChats = filteredConversations
-    const studyGroups: ConversationResponse[] = [] // Placeholder for study groups
 
     return (
         <div className="flex flex-col h-full">
@@ -118,36 +115,7 @@ export function ConversationList({
                             )}
                         </div>
 
-                        {/* Study Groups Section */}
-                        {studyGroups.length > 0 && (
-                            <div className="px-2 py-2 border-t border-slate-200 dark:border-slate-700">
-                                <button
-                                    onClick={() => setStudyGroupsExpanded(!studyGroupsExpanded)}
-                                    className="flex items-center justify-between w-full px-2 py-1.5 text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider hover:text-slate-700 dark:hover:text-slate-300"
-                                >
-                                    <span>Study Groups</span>
-                                    <ChevronDown
-                                        className={cn(
-                                            'h-4 w-4 transition-transform',
-                                            !studyGroupsExpanded && '-rotate-90'
-                                        )}
-                                    />
-                                </button>
 
-                                {studyGroupsExpanded && (
-                                    <div className="mt-1 space-y-0.5">
-                                        {studyGroups.map((conversation) => (
-                                            <ConversationItem
-                                                key={conversation.participantId}
-                                                conversation={conversation}
-                                                isActive={activeConversationId === conversation.participantId}
-                                                onClick={() => onSelectConversation(conversation.participantId)}
-                                            />
-                                        ))}
-                                    </div>
-                                )}
-                            </div>
-                        )}
                     </>
                 )}
             </div>
