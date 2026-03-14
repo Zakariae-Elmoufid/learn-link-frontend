@@ -741,3 +741,25 @@ export {
   useDeleteTask,
   useCompleteTask,
 } from "./usePlanner";
+
+export {
+  useCurrentUserScore,
+  useUserScore,
+  useUserProfile,
+  useGlobalLeaderboard,
+  useWeeklyLeaderboard,
+  useUserRank,
+  useUserRankPercentage,
+  useUserBadges,
+  useUserBadgesCount,
+  useBadgeById,
+  useBadgeByCode,
+  useAllBadges,
+  useActiveBadges,
+  useHasUserBadge,
+  useAddPoints,
+  useAwardBadge,
+  useCreateBadge,
+  useUpdateBadge,
+  useDeleteBadge,
+} from "./useGamification";

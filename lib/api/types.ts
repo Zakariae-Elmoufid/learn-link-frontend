@@ -422,3 +422,80 @@ export interface TaskResponse {
     updatedAt: string
     isOverdue: boolean
 }
+
+// ─── Gamification / Badges & Achievements ──────────────────────────────────
+
+export interface UserScoreResponse {
+    userId: number
+    totalPoints: number
+    level: number
+    currentLevelPoints: number
+    pointsForNextLevel: number
+    progressPercentage: number
+}
+
+export interface BadgeEarned {
+    badgeId: number
+    code: string
+    name: string
+    iconUrl: string
+    rarity: string
+    earnedAt: string
+}
+
+export interface UserPublicProfileResponse {
+    userId: number
+    username: string
+    level: number
+    totalPoints: number
+    rank: number
+    badgeCount: number
+    badges: BadgeEarned[]
+}
+
+export interface LeaderboardEntryResponse {
+    userId: number
+    username: string
+    level: number
+    totalPoints: number
+    rank: number
+    badgeCount: number
+}
+
+export interface UserBadgeResponse {
+    badgeId: number
+    code: string
+    name: string
+    iconUrl: string
+    rarity: string
+    earnedAt: string
+}
+
+export interface BadgeResponse {
+    id: number
+    code: string
+    name: string
+    description: string
+    iconUrl: string
+    type: string
+    rarity: string
+    pointsRequired: number
+    active: boolean
+    createdAt: string
+}
+
+export interface AddPointsRequest {
+    actionType: string
+    points: number
+    description?: string
+}
+
+export interface CreateBadgeRequest {
+    code: string
+    name: string
+    description: string
+    iconUrl: string
+    type: string
+    rarity: string
+    pointsRequired: number
+}
