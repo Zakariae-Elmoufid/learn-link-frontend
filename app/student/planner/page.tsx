@@ -27,7 +27,6 @@ function TaskDetailModal({ isOpen, task, onClose, onComplete, onDelete, onUpdate
     const getCategoryColor = (subject: string) => {
         const colors: any = {
             'Data Structures': 'bg-blue-100 text-blue-800',
-            'Study Group': 'bg-green-100 text-green-800',
             'ML Assignment': 'bg-red-100 text-red-800',
             'Lecture': 'bg-blue-100 text-blue-800',
             'Assignment': 'bg-red-100 text-red-800',
@@ -39,13 +38,13 @@ function TaskDetailModal({ isOpen, task, onClose, onComplete, onDelete, onUpdate
 
     const formatTime = (dateTime: string) => {
         const date = new Date(dateTime)
-        return date.toLocaleString('en-US', { 
-            month: 'short', 
-            day: 'numeric', 
+        return date.toLocaleString('en-US', {
+            month: 'short',
+            day: 'numeric',
             year: 'numeric',
-            hour: 'numeric', 
+            hour: 'numeric',
             minute: '2-digit',
-            hour12: true 
+            hour12: true
         })
     }
 
@@ -204,7 +203,6 @@ function TaskDetailModal({ isOpen, task, onClose, onComplete, onDelete, onUpdate
                                 >
                                     <option>Other</option>
                                     <option>Data Structures</option>
-                                    <option>Study Group</option>
                                     <option>ML Assignment</option>
                                     <option>Lecture</option>
                                     <option>Assignment</option>
@@ -256,7 +254,7 @@ function CreateTaskModal({ isOpen, onClose, onSubmit, isLoading }: CreateTaskMod
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault()
-        
+
         if (!formData.title || !formData.startDate || !formData.startTime || !formData.endDate || !formData.endTime) {
             toast.error('Please fill in all required fields')
             return
@@ -371,7 +369,6 @@ function CreateTaskModal({ isOpen, onClose, onSubmit, isLoading }: CreateTaskMod
                         >
                             <option>Other</option>
                             <option>Data Structures</option>
-                            <option>Study Group</option>
                             <option>ML Assignment</option>
                             <option>Lecture</option>
                             <option>Assignment</option>
@@ -421,7 +418,6 @@ function MonthView({ tasks, currentDate, onDateChange, onTaskClick }: any) {
     const getCategoryColor = (subject: string) => {
         const colors: any = {
             'Data Structures': 'bg-blue-100 text-blue-800',
-            'Study Group': 'bg-green-100 text-green-800',
             'ML Assignment': 'bg-red-100 text-red-800',
             'Lecture': 'bg-blue-100 text-blue-800',
             'Assignment': 'bg-red-100 text-red-800',
@@ -496,7 +492,6 @@ function WeekView({ tasks, currentDate, onDateChange, onConfirm, onCancel, onTas
     const getCategoryColor = (subject: string) => {
         const colors: any = {
             'Data Structures': 'bg-blue-100 text-blue-700 border-l-4 border-blue-400',
-            'Study Group': 'bg-green-100 text-green-700 border-l-4 border-green-400',
             'ML Assignment': 'bg-red-100 text-red-700 border-l-4 border-red-400',
             'Lecture': 'bg-blue-100 text-blue-700 border-l-4 border-blue-400',
             'Assignment': 'bg-red-100 text-red-700 border-l-4 border-red-400',
@@ -593,7 +588,6 @@ function DayView({ tasks, currentDate, onConfirm, onCancel, onTaskClick }: any) 
     const getCategoryColor = (subject: string) => {
         const colors: any = {
             'Data Structures': 'bg-blue-100 text-blue-900',
-            'Study Group': 'bg-green-100 text-green-900',
             'ML Assignment': 'bg-red-100 text-red-900',
             'Lecture': 'bg-blue-100 text-blue-900',
             'Assignment': 'bg-red-100 text-red-900',
@@ -771,11 +765,10 @@ export default function PlannerPage() {
                                 <button
                                     key={v}
                                     onClick={() => setView(v)}
-                                    className={`px-4 py-1 rounded font-medium transition-colors text-sm ${
-                                        view === v
+                                    className={`px-4 py-1 rounded font-medium transition-colors text-sm ${view === v
                                             ? 'bg-blue-600 text-white'
                                             : 'text-gray-700 hover:bg-gray-200'
-                                    }`}
+                                        }`}
                                 >
                                     {v.charAt(0).toUpperCase() + v.slice(1)}
                                 </button>
@@ -816,17 +809,17 @@ export default function PlannerPage() {
                 ) : (
                     <div className="bg-white rounded-lg p-6 border border-gray-200">
                         {view === 'month' && (
-                            <MonthView 
-                                tasks={allTasks} 
-                                currentDate={currentDate} 
+                            <MonthView
+                                tasks={allTasks}
+                                currentDate={currentDate}
                                 onDateChange={setCurrentDate}
                                 onTaskClick={handleTaskClick}
                             />
                         )}
                         {view === 'week' && (
-                            <WeekView 
-                                tasks={allTasks} 
-                                currentDate={currentDate} 
+                            <WeekView
+                                tasks={allTasks}
+                                currentDate={currentDate}
                                 onDateChange={setCurrentDate}
                                 onConfirm={handleConfirmTask}
                                 onCancel={handleCancelTask}
@@ -834,8 +827,8 @@ export default function PlannerPage() {
                             />
                         )}
                         {view === 'day' && (
-                            <DayView 
-                                tasks={allTasks} 
+                            <DayView
+                                tasks={allTasks}
                                 currentDate={currentDate}
                                 onConfirm={handleConfirmTask}
                                 onCancel={handleCancelTask}

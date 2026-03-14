@@ -47,11 +47,7 @@ const mainNavItems: NavItem[] = [
     href: "/student/connections",
     icon: <UserPlus className="h-5 w-5" />,
   },
-  {
-    label: "Study Groups",
-    href: "/student/groups",
-    icon: <Users className="h-5 w-5" />,
-  },
+
   {
     label: "Messages",
     href: "/student/messages",
@@ -63,8 +59,8 @@ const mainNavItems: NavItem[] = [
     icon: <Globe className="h-5 w-5" />,
   },
   {
-    label: "Schedule",
-    href: "/student/schedule",
+    label: "Planner",
+    href: "/student/planner",
     icon: <Calendar className="h-5 w-5" />,
   },
   {

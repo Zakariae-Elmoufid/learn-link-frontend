@@ -19,16 +19,16 @@ export function useWebSocket() {
     const queryClient = useQueryClient()
     const isAuthenticated = useAuthStore((s) => s.isAuthenticated)
     const user = useAuthStore((s) => s.user)
-    
+
     const [isConnected, setIsConnected] = useState(false)
-    
+
     const addMessage = useMessageStore((s) => s.addMessage)
     const updateMessage = useMessageStore((s) => s.updateMessage)
     const setUserTyping = useMessageStore((s) => s.setUserTyping)
     const updateConversation = useMessageStore((s) => s.updateConversation)
     const conversations = useMessageStore((s) => s.conversations)
     const setConversations = useMessageStore((s) => s.setConversations)
-    
+
     // Use refs to always have latest values in callbacks
     const activeConversationIdRef = useRef<number | null>(null)
     const userRef = useRef(user)
@@ -36,29 +36,29 @@ export function useWebSocket() {
     const addMessageRef = useRef(addMessage)
     const updateConversationRef = useRef(updateConversation)
     const setConversationsRef = useRef(setConversations)
-    
+
     // Sync refs with state
     const activeConversationId = useMessageStore((s) => s.activeConversationId)
     useEffect(() => {
         activeConversationIdRef.current = activeConversationId
         console.log("[WS] Active conversation updated:", activeConversationId)
     }, [activeConversationId])
-    
+
     useEffect(() => {
         userRef.current = user
         console.log("[WS] User updated:", user?.id)
     }, [user])
-    
+
     useEffect(() => {
         conversationsRef.current = conversations
     }, [conversations])
-    
+
     useEffect(() => {
         addMessageRef.current = addMessage
         updateConversationRef.current = updateConversation
         setConversationsRef.current = setConversations
     }, [addMessage, updateConversation, setConversations])
-    
+
     const connectionAttemptedRef = useRef(false)
 
     // Handle incoming message - this is called for both sent and received messages
@@ -67,24 +67,24 @@ export function useWebSocket() {
         console.log("[WS] Message:", JSON.stringify(message, null, 2))
         console.log("[WS] Current user ID:", userRef.current?.id)
         console.log("[WS] Active conversation ID:", activeConversationIdRef.current)
-        
+
         const currentUserId = userRef.current?.id
         if (!currentUserId) {
             console.warn("[WS] No current user ID - ignoring message")
             return
         }
-        
+
         // Determine the other participant in this message
         const isSentByMe = message.senderId === currentUserId
         const otherParticipantId = isSentByMe ? message.recipientId : message.senderId
-        
+
         console.log("[WS] Is sent by me:", isSentByMe)
         console.log("[WS] Other participant ID:", otherParticipantId)
-        
+
         // Check if message is for the currently active conversation
         const isForActiveConversation = activeConversationIdRef.current === otherParticipantId
         console.log("[WS] Is for active conversation:", isForActiveConversation)
-        
+
         if (isForActiveConversation) {
             // Add message to the active chat
             console.log("[WS] Adding message to active chat")
@@ -92,12 +92,12 @@ export function useWebSocket() {
         } else {
             console.log("[WS] Message is for a different conversation, not adding to chat view")
         }
-        
+
         // Check if conversation exists
         const existingConversation = conversationsRef.current.find(
             c => c.participantId === otherParticipantId
         )
-        
+
         if (existingConversation) {
             // Update existing conversation preview
             updateConversationRef.current(otherParticipantId, {
@@ -111,7 +111,7 @@ export function useWebSocket() {
             })
         } else {
             // Create a new conversation entry
-            const newConversation = {
+            const newConversation: any = {
                 participantId: otherParticipantId,
                 participantName: undefined,
                 participantAvatar: undefined,
@@ -121,7 +121,7 @@ export function useWebSocket() {
             }
             setConversationsRef.current([newConversation, ...conversationsRef.current])
         }
-        
+
         // Refresh conversations list
         queryClient.invalidateQueries({ queryKey: messageKeys.conversations() })
         console.log("[WS] ===== MESSAGE PROCESSED =====")
@@ -143,7 +143,7 @@ export function useWebSocket() {
     // Connect WebSocket and set up callbacks
     useEffect(() => {
         console.log("[WS] Effect running - isAuthenticated:", isAuthenticated, "user:", user?.id)
-        
+
         if (!isAuthenticated) {
             console.log("[WS] Not authenticated, skipping connection")
             return

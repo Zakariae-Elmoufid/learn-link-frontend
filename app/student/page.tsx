@@ -17,7 +17,7 @@ export default function DashboardPage() {
 
     const stats = [
         { label: 'Courses Enrolled', value: profile?.postsCount || 0, icon: <BookOpen className="h-6 w-6" />, color: 'bg-blue-500' },
-        { label: 'Study Groups', value: profile?.connectionsCount || 0, icon: <Users className="h-6 w-6" />, color: 'bg-green-500' },
+        { label: 'Connections', value: profile?.connectionsCount || 0, icon: <Users className="h-6 w-6" />, color: 'bg-green-500' },
         { label: 'Badges Earned', value: profile?.badgesCount || 0, icon: <Award className="h-6 w-6" />, color: 'bg-yellow-500' },
         { label: 'Total Points', value: profile?.points || 0, icon: <TrendingUp className="h-6 w-6" />, color: 'bg-purple-500' },
     ]
@@ -81,7 +81,7 @@ export default function DashboardPage() {
                         </button>
                         <button className="flex flex-col items-center gap-2 rounded-lg border border-slate-200 p-4 hover:bg-slate-50 dark:border-slate-700 dark:hover:bg-slate-800 transition-colors">
                             <Users className="h-6 w-6 text-green-600" />
-                            <span className="text-sm font-medium text-slate-700 dark:text-slate-300">Find Study Group</span>
+                            <span className="text-sm font-medium text-slate-700 dark:text-slate-300">Find Connections</span>
                         </button>
                         <button className="flex flex-col items-center gap-2 rounded-lg border border-slate-200 p-4 hover:bg-slate-50 dark:border-slate-700 dark:hover:bg-slate-800 transition-colors">
                             <Award className="h-6 w-6 text-yellow-600" />

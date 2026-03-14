@@ -1,0 +1,27 @@
+﻿app/auth/verify-email/page.tsx(68,31): error TS2769: No overload matches this call.
+  Overload 1 of 2, '(props: LinkProps<"/login">): JSX.Element', gave the following error.
+    Type '"/login"' is not assignable to type 'UrlObject | RouteImpl<"/login">'.
+  Overload 2 of 2, '(props: LinkProps<"/login">): JSX.Element', gave the following error.
+    Type '"/login"' is not assignable to type 'UrlObject | RouteImpl<"/login">'.
+app/auth/verify-email/page.tsx(81,31): error TS2769: No overload matches this call.
+  Overload 1 of 2, '(props: LinkProps<"/register">): JSX.Element', gave the following error.
+    Type '"/register"' is not assignable to type 'UrlObject | RouteImpl<"/register">'.
+  Overload 2 of 2, '(props: LinkProps<"/register">): JSX.Element', gave the following error.
+    Type '"/register"' is not assignable to type 'UrlObject | RouteImpl<"/register">'.
+app/profile/setup/page.tsx(323,35): error TS2769: No overload matches this call.
+  Overload 1 of 2, '(props: LinkProps<"/privacy">): JSX.Element', gave the following error.
+    Type '"/privacy"' is not assignable to type 'UrlObject | RouteImpl<"/privacy">'.
+  Overload 2 of 2, '(props: LinkProps<"/privacy">): JSX.Element', gave the following error.
+    Type '"/privacy"' is not assignable to type 'UrlObject | RouteImpl<"/privacy">'.
+app/profile/setup/page.tsx(324,35): error TS2769: No overload matches this call.
+  Overload 1 of 2, '(props: LinkProps<"/terms">): JSX.Element', gave the following error.
+    Type '"/terms"' is not assignable to type 'UrlObject | RouteImpl<"/terms">'.
+  Overload 2 of 2, '(props: LinkProps<"/terms">): JSX.Element', gave the following error.
+    Type '"/terms"' is not assignable to type 'UrlObject | RouteImpl<"/terms">'.
+app/profile/setup/page.tsx(325,35): error TS2769: No overload matches this call.
+  Overload 1 of 2, '(props: LinkProps<"/help">): JSX.Element', gave the following error.
+    Type '"/help"' is not assignable to type 'UrlObject | RouteImpl<"/help">'.
+  Overload 2 of 2, '(props: LinkProps<"/help">): JSX.Element', gave the following error.
+    Type '"/help"' is not assignable to type 'UrlObject | RouteImpl<"/help">'.
+app/student/profile/page.tsx(406,40): error TS2345: Argument of type '"/dashboard"' is not assignable to parameter of type 'RouteImpl<"/dashboard">'.
+hookes/useWebSocket.ts(122,42): error TS2741: Property 'participant' is missing in type '{ participantId: number; participantName: undefined; participantAvatar: undefined; lastMessage: string; lastMessageAt: string; unreadCount: number; }' but required in type 'ConversationResponse'.

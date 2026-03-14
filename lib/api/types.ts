@@ -46,7 +46,7 @@ export interface RefreshTokenRequest {
     refresh_token: string
 }
 // ─── User / Profile ──────────────────────────────────────────────────────────
-    export interface UserProfileResponse {
+export interface UserProfileResponse {
     id: number
     userId: number
     username: string
@@ -54,9 +54,9 @@ export interface RefreshTokenRequest {
     firstName: string
     lastName: string
     bio: string
-        academicLevel: string
-        profilePictureUrl?: string
-        studentSubjects: Subject[]
+    academicLevel: string
+    profilePictureUrl?: string
+    studentSubjects: Subject[]
     coverUrl?: string
     subjectIds: number[]
     postsCount: number
@@ -225,59 +225,7 @@ export interface ConnectionCheckResponse {
     connected: boolean
 }
 
-// ─── Study Groups ────────────────────────────────────────────────────────────
 
-export type GroupStatus = 'ACTIVE' | 'FULL' | 'ARCHIVED'
-export type GroupRole = 'OWNER' | 'ADMIN' | 'MEMBER'
-export type MembershipStatus = 'PENDING' | 'ACTIVE' | 'REMOVED'
-
-export interface CreateGroupRequest {
-    name: string
-    description?: string
-    subjectId?: number
-    maxMembers?: number
-    isPublic?: boolean
-    coverImageUrl?: string
-}
-
-export interface UpdateGroupRequest {
-    name?: string
-    description?: string
-    maxMembers?: number
-    isPublic?: boolean
-    coverImageUrl?: string
-}
-
-export interface GroupMember {
-    userId: number
-    firstName: string
-    lastName: string
-    profilePictureUrl?: string
-    role: GroupRole
-    status: MembershipStatus
-    joinedAt?: string
-}
-
-export interface StudyGroupResponse {
-    id: number
-    name: string
-    description?: string
-    subjectId?: number
-    subjectName?: string
-    ownerId: number
-    ownerName: string
-    maxMembers: number
-    currentMemberCount: number
-    status: GroupStatus
-    isPublic: boolean
-    coverImageUrl?: string
-    createdAt: string
-    isMember: boolean
-    isAdmin: boolean
-    isOwner: boolean
-    hasPendingRequest: boolean
-    members?: GroupMember[]
-}
 
 // ─── Community / Posts ───────────────────────────────────────────────────────
 
@@ -421,4 +369,81 @@ export interface TaskResponse {
     createdAt: string
     updatedAt: string
     isOverdue: boolean
+}
+
+// ─── Gamification / Badges & Achievements ──────────────────────────────────
+
+export interface UserScoreResponse {
+    userId: number
+    totalPoints: number
+    level: number
+    currentLevelPoints: number
+    pointsForNextLevel: number
+    progressPercentage: number
+}
+
+export interface BadgeEarned {
+    badgeId: number
+    code: string
+    name: string
+    iconUrl: string
+    rarity: string
+    earnedAt: string
+}
+
+export interface UserPublicProfileResponse {
+    userId: number
+    username: string
+    level: number
+    totalPoints: number
+    rank: number
+    badgeCount: number
+    badges: BadgeEarned[]
+}
+
+export interface LeaderboardEntryResponse {
+    userId: number
+    username: string
+    level: number
+    totalPoints: number
+    rank: number
+    badgeCount: number
+}
+
+export interface UserBadgeResponse {
+    badgeId: number
+    code: string
+    name: string
+    iconUrl: string
+    rarity: string
+    earnedAt: string
+}
+
+export interface BadgeResponse {
+    id: number
+    code: string
+    name: string
+    description: string
+    iconUrl: string
+    type: string
+    rarity: string
+    pointsRequired: number
+    active: boolean
+    createdAt: string
+}
+
+export interface AddPointsRequest {
+    actionType: string
+    points: number
+    description?: string
+}
+
+export interface CreateBadgeRequest {
+    code: string
+    name: string
+    description: string
+    iconUrl: string
+    type: string
+    rarity: string
+    pointsRequired: number
 }
