@@ -491,3 +491,31 @@ export interface StudentDashboardResponse {
     recentActivities: RecentActivity[]
     contentCreationStats: ContentCreationStats
 }
+
+export interface TopSubject {
+    subjectId: number
+    subjectName: string
+    postCount: number
+    questionCount: number
+}
+
+export interface AdminDashboardStats {
+    totalUsers: number
+    activeUsersLast7Days: number
+    activeUsersLast30Days: number
+    newUsersThisWeek: number
+    newUsersThisMonth: number
+    totalPosts: number
+    totalQuestions: number
+    totalAnswers: number
+    totalComments: number
+    postsThisWeek: number
+    totalTasks: number
+    completedTasks: number
+    taskCompletionRate: number
+    totalConnections: number
+    totalPointsAwarded: number
+    badgesEarned: number
+    topSubjects: TopSubject[]
+    generatedAt: string
+}
