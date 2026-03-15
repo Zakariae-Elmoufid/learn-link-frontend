@@ -2,21 +2,21 @@
 
 import { useState, useMemo } from 'react'
 import { useRouter } from 'next/navigation'
-import { 
-    useMatchSuggestions, 
-    useMatchSuggestionsBySubject, 
+import {
+    useMatchSuggestions,
+    useMatchSuggestionsBySubject,
     useSendConnectionRequest,
     useSubjects,
     usePendingRequestsCount
 } from '../../../hookes'
-import { StudyPartnerCard, StudyPartnerCardSkeleton } from '../../../components/connections'
+import { StudyPartnerCard, StudyPartnerCardSkeleton, ProfileModal } from '../../../components/connections'
 import { Button, Input } from '../../../components/ui'
-import { 
-    Search, 
-    Filter, 
-    LayoutGrid, 
-    List, 
-    Sparkles, 
+import {
+    Search,
+    Filter,
+    LayoutGrid,
+    List,
+    Sparkles,
     ChevronDown,
     Info,
     ArrowRight,
@@ -31,7 +31,7 @@ type SortOption = 'compatibility' | 'name' | 'recent'
 
 export default function ConnectionsPage() {
     const router = useRouter()
-    
+
     // State
     const [viewMode, setViewMode] = useState<ViewMode>('grid')
     const [searchQuery, setSearchQuery] = useState('')
@@ -40,19 +40,20 @@ export default function ConnectionsPage() {
     const [showFilters, setShowFilters] = useState(false)
     const [connectingUserId, setConnectingUserId] = useState<number | null>(null)
     const [limit, setLimit] = useState(12)
+    const [selectedPartner, setSelectedPartner] = useState<any>(null)
 
     // Queries
     const { data: subjects } = useSubjects()
     const { data: pendingCount } = usePendingRequestsCount()
-    const { 
-        data: suggestions, 
-        isLoading, 
+    const {
+        data: suggestions,
+        isLoading,
         refetch,
-        isFetching 
-    } = selectedSubjectId 
-        ? useMatchSuggestionsBySubject(selectedSubjectId, 50)
-        : useMatchSuggestions(50)
-    
+        isFetching
+    } = selectedSubjectId
+            ? useMatchSuggestionsBySubject(selectedSubjectId, 50)
+            : useMatchSuggestions(50)
+
     // Mutations
     const sendConnectionRequest = useSendConnectionRequest()
 
@@ -65,7 +66,7 @@ export default function ConnectionsPage() {
         // Search filter
         if (searchQuery) {
             const query = searchQuery.toLowerCase()
-            filtered = filtered.filter(s => 
+            filtered = filtered.filter(s =>
                 `${s.firstName} ${s.lastName}`.toLowerCase().includes(query) ||
                 s.bio?.toLowerCase().includes(query) ||
                 s.commonSubjects?.some(sub => sub.toLowerCase().includes(query))
@@ -78,7 +79,7 @@ export default function ConnectionsPage() {
                 filtered.sort((a, b) => b.compatibilityScore - a.compatibilityScore)
                 break
             case 'name':
-                filtered.sort((a, b) => 
+                filtered.sort((a, b) =>
                     `${a.firstName} ${a.lastName}`.localeCompare(`${b.firstName} ${b.lastName}`)
                 )
                 break
@@ -107,7 +108,8 @@ export default function ConnectionsPage() {
     }
 
     const handleViewProfile = (userId: number) => {
-        router.push(`/student/profile/${userId}` as any)
+        const partner = suggestions?.find(s => s.userId === userId)
+        if (partner) setSelectedPartner(partner)
     }
 
     const handleLoadMore = () => {
@@ -166,22 +168,20 @@ export default function ConnectionsPage() {
                     <div className="flex items-center gap-1 bg-slate-100 dark:bg-slate-800 rounded-lg p-1">
                         <button
                             onClick={() => setViewMode('grid')}
-                            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-md text-sm font-medium transition-colors ${
-                                viewMode === 'grid'
+                            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-md text-sm font-medium transition-colors ${viewMode === 'grid'
                                     ? 'bg-white dark:bg-slate-700 text-slate-900 dark:text-white shadow-sm'
                                     : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
-                            }`}
+                                }`}
                         >
                             <LayoutGrid className="h-4 w-4" />
                             Grid
                         </button>
                         <button
                             onClick={() => setViewMode('list')}
-                            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-md text-sm font-medium transition-colors ${
-                                viewMode === 'list'
+                            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-md text-sm font-medium transition-colors ${viewMode === 'list'
                                     ? 'bg-white dark:bg-slate-700 text-slate-900 dark:text-white shadow-sm'
                                     : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
-                            }`}
+                                }`}
                         >
                             <List className="h-4 w-4" />
                             List
@@ -246,11 +246,10 @@ export default function ConnectionsPage() {
 
             {/* Results */}
             {isLoading ? (
-                <div className={`grid gap-6 ${
-                    viewMode === 'grid' 
-                        ? 'grid-cols-1 sm:grid-cols-2 lg:grid-cols-3' 
+                <div className={`grid gap-6 ${viewMode === 'grid'
+                        ? 'grid-cols-1 sm:grid-cols-2 lg:grid-cols-3'
                         : 'grid-cols-1'
-                }`}>
+                    }`}>
                     {Array.from({ length: 6 }).map((_, i) => (
                         <StudyPartnerCardSkeleton key={i} />
                     ))}
@@ -264,7 +263,7 @@ export default function ConnectionsPage() {
                         No matches found
                     </h3>
                     <p className="text-slate-500 dark:text-slate-400 max-w-sm">
-                        {searchQuery 
+                        {searchQuery
                             ? "Try adjusting your search or filters to find more study partners."
                             : "Complete your profile to get personalized match suggestions."}
                     </p>
@@ -272,11 +271,10 @@ export default function ConnectionsPage() {
             ) : (
                 <>
                     {/* Results grid */}
-                    <div className={`grid gap-6 ${
-                        viewMode === 'grid' 
-                            ? 'grid-cols-1 sm:grid-cols-2 lg:grid-cols-3' 
+                    <div className={`grid gap-6 ${viewMode === 'grid'
+                            ? 'grid-cols-1 sm:grid-cols-2 lg:grid-cols-3'
                             : 'grid-cols-1'
-                    }`}>
+                        }`}>
                         {displayedSuggestions.map((partner) => (
                             <StudyPartnerCard
                                 key={partner.userId}
@@ -319,14 +317,23 @@ export default function ConnectionsPage() {
                         Matches are 40% more likely to accept a connection request if you include a brief message about which subject you'd like to collaborate on.
                     </p>
                 </div>
-                <Button 
-                    variant="primary" 
+                <Button
+                    variant="primary"
                     size="sm"
                     onClick={() => router.push('/student/profile')}
                 >
                     Update My Preferences
                 </Button>
             </div>
+
+            {/* Profile Modal */}
+            <ProfileModal
+                isOpen={!!selectedPartner}
+                onClose={() => setSelectedPartner(null)}
+                partner={selectedPartner}
+                onConnect={handleConnect}
+                isConnecting={connectingUserId === selectedPartner?.userId}
+            />
         </div>
     )
 }

@@ -2,25 +2,27 @@
 
 import { useState, useMemo } from 'react'
 import { useRouter } from 'next/navigation'
-import { 
-    useConnections, 
+import {
+    useConnections,
     useConnectionsCount,
-    useRemoveConnection 
+    useRemoveConnection
 } from '../../../../hookes'
 import { ConnectionResponse } from '../../../../lib/api/types'
 import { useMessageStore } from '../../../../stores'
+import { ProfileModal } from '../../../../components/connections'
 import { Button, Input } from '../../../../components/ui'
-import { 
-    Search, 
-    MessageSquare, 
-    LayoutGrid, 
-    List, 
+import {
+    Search,
+    MessageSquare,
+    LayoutGrid,
+    List,
     Filter,
     Users,
     Loader2,
     UserMinus,
     ChevronLeft,
-    ChevronRight
+    ChevronRight,
+    Eye
 } from 'lucide-react'
 import Image from 'next/image'
 
@@ -47,15 +49,17 @@ function formatAcademicLevel(level: string): string {
 }
 
 // Connection Card Component
-function ConnectionCard({ 
-    connection, 
+function ConnectionCard({
+    connection,
     onMessage,
     onRemove,
+    onViewProfile,
     isRemoving
-}: { 
+}: {
     connection: ConnectionResponse
     onMessage: (connection: ConnectionResponse) => void
     onRemove: (connectionId: number) => void
+    onViewProfile: (connection: ConnectionResponse) => void
     isRemoving: boolean
 }) {
     const fullName = `${connection.firstName} ${connection.lastName}`
@@ -113,6 +117,15 @@ function ConnectionCard({
             {/* Actions */}
             <div className="flex items-center gap-2">
                 <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => onViewProfile(connection)}
+                    className="flex-shrink-0 text-slate-600 hover:text-slate-900 border-slate-200 hover:bg-slate-50 dark:border-slate-700 dark:text-slate-400 dark:hover:text-slate-200 dark:hover:bg-slate-800"
+                    title="View Profile"
+                >
+                    <Eye className="h-4 w-4" />
+                </Button>
+                <Button
                     variant="primary"
                     size="sm"
                     onClick={() => onMessage(connection)}
@@ -121,7 +134,7 @@ function ConnectionCard({
                     <MessageSquare className="h-4 w-4 mr-1.5" />
                     Message
                 </Button>
-                
+
                 {/* Remove Connection Button */}
                 <Button
                     variant="outline"
@@ -139,7 +152,7 @@ function ConnectionCard({
 
 export default function MyConnectionsPage() {
     const router = useRouter()
-    
+
     // State
     const [viewMode, setViewMode] = useState<ViewMode>('grid')
     const [searchQuery, setSearchQuery] = useState('')
@@ -147,6 +160,7 @@ export default function MyConnectionsPage() {
     const [sortBy, setSortBy] = useState<SortOption>('recent')
     const [currentPage, setCurrentPage] = useState(1)
     const [removingId, setRemovingId] = useState<number | null>(null)
+    const [selectedConnection, setSelectedConnection] = useState<ConnectionResponse | null>(null)
 
     // Queries
     const { data: connections, isLoading } = useConnections()
@@ -164,7 +178,7 @@ export default function MyConnectionsPage() {
         // Search filter
         if (searchQuery) {
             const query = searchQuery.toLowerCase()
-            filtered = filtered.filter(c => 
+            filtered = filtered.filter(c =>
                 `${c.firstName} ${c.lastName}`.toLowerCase().includes(query) ||
                 c.bio?.toLowerCase().includes(query) ||
                 c.academicLevel?.toLowerCase().includes(query)
@@ -174,12 +188,12 @@ export default function MyConnectionsPage() {
         // Sort
         switch (sortBy) {
             case 'recent':
-                filtered.sort((a, b) => 
+                filtered.sort((a, b) =>
                     new Date(b.connectedAt).getTime() - new Date(a.connectedAt).getTime()
                 )
                 break
             case 'name':
-                filtered.sort((a, b) => 
+                filtered.sort((a, b) =>
                     `${a.firstName} ${a.lastName}`.localeCompare(`${b.firstName} ${b.lastName}`)
                 )
                 break
@@ -205,7 +219,7 @@ export default function MyConnectionsPage() {
     const handleMessage = (connection: ConnectionResponse) => {
         // Check if conversation already exists
         const existingConversation = conversations.find(c => c.participantId === connection.connectedUserId)
-        
+
         if (!existingConversation) {
             // Set pending conversation user for new chat
             setPendingConversationUser({
@@ -215,7 +229,7 @@ export default function MyConnectionsPage() {
                 profilePictureUrl: connection.profilePictureUrl,
             })
         }
-        
+
         // Set active conversation and navigate
         setActiveConversation(connection.connectedUserId)
         router.push('/student/messages')
@@ -269,21 +283,19 @@ export default function MyConnectionsPage() {
                     <div className="flex items-center gap-1 bg-slate-100 dark:bg-slate-800 rounded-lg p-1">
                         <button
                             onClick={() => setViewMode('grid')}
-                            className={`p-2 rounded-md transition-colors ${
-                                viewMode === 'grid'
-                                    ? 'bg-white dark:bg-slate-700 text-slate-900 dark:text-white shadow-sm'
-                                    : 'text-slate-500 hover:text-slate-700 dark:text-slate-400 dark:hover:text-slate-300'
-                            }`}
+                            className={`p-2 rounded-md transition-colors ${viewMode === 'grid'
+                                ? 'bg-white dark:bg-slate-700 text-slate-900 dark:text-white shadow-sm'
+                                : 'text-slate-500 hover:text-slate-700 dark:text-slate-400 dark:hover:text-slate-300'
+                                }`}
                         >
                             <LayoutGrid className="h-4 w-4" />
                         </button>
                         <button
                             onClick={() => setViewMode('list')}
-                            className={`p-2 rounded-md transition-colors ${
-                                viewMode === 'list'
-                                    ? 'bg-white dark:bg-slate-700 text-slate-900 dark:text-white shadow-sm'
-                                    : 'text-slate-500 hover:text-slate-700 dark:text-slate-400 dark:hover:text-slate-300'
-                            }`}
+                            className={`p-2 rounded-md transition-colors ${viewMode === 'list'
+                                ? 'bg-white dark:bg-slate-700 text-slate-900 dark:text-white shadow-sm'
+                                : 'text-slate-500 hover:text-slate-700 dark:text-slate-400 dark:hover:text-slate-300'
+                                }`}
                         >
                             <List className="h-4 w-4" />
                         </button>
@@ -310,31 +322,28 @@ export default function MyConnectionsPage() {
                 <div className="flex items-center gap-1 bg-slate-100 dark:bg-slate-800 rounded-lg p-1">
                     <button
                         onClick={() => setFilterType('all')}
-                        className={`px-4 py-2 rounded-md text-sm font-medium transition-colors ${
-                            filterType === 'all'
-                                ? 'bg-white dark:bg-slate-700 text-slate-900 dark:text-white shadow-sm'
-                                : 'text-slate-500 hover:text-slate-700 dark:text-slate-400 dark:hover:text-slate-300'
-                        }`}
+                        className={`px-4 py-2 rounded-md text-sm font-medium transition-colors ${filterType === 'all'
+                            ? 'bg-white dark:bg-slate-700 text-slate-900 dark:text-white shadow-sm'
+                            : 'text-slate-500 hover:text-slate-700 dark:text-slate-400 dark:hover:text-slate-300'
+                            }`}
                     >
                         All
                     </button>
                     <button
                         onClick={() => setFilterType('mutual')}
-                        className={`px-4 py-2 rounded-md text-sm font-medium transition-colors ${
-                            filterType === 'mutual'
-                                ? 'bg-white dark:bg-slate-700 text-slate-900 dark:text-white shadow-sm'
-                                : 'text-slate-500 hover:text-slate-700 dark:text-slate-400 dark:hover:text-slate-300'
-                        }`}
+                        className={`px-4 py-2 rounded-md text-sm font-medium transition-colors ${filterType === 'mutual'
+                            ? 'bg-white dark:bg-slate-700 text-slate-900 dark:text-white shadow-sm'
+                            : 'text-slate-500 hover:text-slate-700 dark:text-slate-400 dark:hover:text-slate-300'
+                            }`}
                     >
                         Mutual Groups
                     </button>
                     <button
                         onClick={() => setFilterType('online')}
-                        className={`px-4 py-2 rounded-md text-sm font-medium transition-colors ${
-                            filterType === 'online'
-                                ? 'bg-white dark:bg-slate-700 text-slate-900 dark:text-white shadow-sm'
-                                : 'text-slate-500 hover:text-slate-700 dark:text-slate-400 dark:hover:text-slate-300'
-                        }`}
+                        className={`px-4 py-2 rounded-md text-sm font-medium transition-colors ${filterType === 'online'
+                            ? 'bg-white dark:bg-slate-700 text-slate-900 dark:text-white shadow-sm'
+                            : 'text-slate-500 hover:text-slate-700 dark:text-slate-400 dark:hover:text-slate-300'
+                            }`}
                     >
                         Online
                     </button>
@@ -377,17 +386,17 @@ export default function MyConnectionsPage() {
             ) : (
                 <>
                     {/* Connections grid */}
-                    <div className={`grid gap-4 ${
-                        viewMode === 'grid' 
-                            ? 'grid-cols-1 sm:grid-cols-2 lg:grid-cols-3' 
-                            : 'grid-cols-1'
-                    }`}>
+                    <div className={`grid gap-4 ${viewMode === 'grid'
+                        ? 'grid-cols-1 sm:grid-cols-2 lg:grid-cols-3'
+                        : 'grid-cols-1'
+                        }`}>
                         {paginatedConnections.map((connection) => (
                             <ConnectionCard
                                 key={connection.id}
                                 connection={connection}
                                 onMessage={handleMessage}
                                 onRemove={handleRemove}
+                                onViewProfile={setSelectedConnection}
                                 isRemoving={removingId === connection.id}
                             />
                         ))}
@@ -398,7 +407,7 @@ export default function MyConnectionsPage() {
                         <p className="text-sm text-slate-500 dark:text-slate-400">
                             Showing {(currentPage - 1) * ITEMS_PER_PAGE + 1}-{Math.min(currentPage * ITEMS_PER_PAGE, filteredConnections.length)} of {filteredConnections.length} connections
                         </p>
-                        
+
                         <div className="flex items-center gap-2">
                             <button
                                 onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
@@ -408,24 +417,23 @@ export default function MyConnectionsPage() {
                                 <ChevronLeft className="h-4 w-4" />
                                 Previous
                             </button>
-                            
+
                             {/* Page numbers */}
                             <div className="flex items-center gap-1">
                                 {Array.from({ length: totalPages }, (_, i) => i + 1).map(page => (
                                     <button
                                         key={page}
                                         onClick={() => setCurrentPage(page)}
-                                        className={`h-8 w-8 rounded-lg text-sm font-medium transition-colors ${
-                                            currentPage === page
-                                                ? 'bg-primary-600 text-white'
-                                                : 'text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800'
-                                        }`}
+                                        className={`h-8 w-8 rounded-lg text-sm font-medium transition-colors ${currentPage === page
+                                            ? 'bg-primary-600 text-white'
+                                            : 'text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800'
+                                            }`}
                                     >
                                         {page}
                                     </button>
                                 ))}
                             </div>
-                            
+
                             <button
                                 onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
                                 disabled={currentPage === totalPages}
@@ -438,6 +446,26 @@ export default function MyConnectionsPage() {
                     </div>
                 </>
             )}
+
+            {/* Profile Modal */}
+            <ProfileModal
+                isOpen={!!selectedConnection}
+                onClose={() => setSelectedConnection(null)}
+                partner={selectedConnection ? {
+                    userId: selectedConnection.connectedUserId,
+                    firstName: selectedConnection.firstName,
+                    lastName: selectedConnection.lastName,
+                    profilePictureUrl: selectedConnection.profilePictureUrl,
+                    bio: selectedConnection.bio,
+                    academicLevel: selectedConnection.academicLevel,
+                    compatibilityScore: selectedConnection.compatibilityScore,
+                    subjectMatchPercentage: 0,
+                    levelMatchPercentage: 0,
+                    commonSubjects: selectedConnection.bio?.split(',').slice(0, 3).map(s => s.trim()).filter(Boolean) || [],
+                    isConnected: true,
+                    hasPendingRequest: false
+                } as any : null}
+            />
         </div>
     )
 }
