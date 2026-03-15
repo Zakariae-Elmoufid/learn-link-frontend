@@ -483,3 +483,5 @@ export {
   useUpdateBadge,
   useDeleteBadge,
 } from "./useGamification";
+
+export * from './useDashboard';

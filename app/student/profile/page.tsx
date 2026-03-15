@@ -357,46 +357,7 @@ export default function ProfilePage() {
           </p>
         </Card>
 
-        {/* Stats */}
-        <Card padding="lg">
-          <h2 className="text-lg font-semibold text-slate-900 dark:text-white mb-6">
-            Profile Stats
-          </h2>
-          <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
-            <div className="text-center p-4 rounded-lg bg-slate-50 dark:bg-slate-800">
-              <p className="text-2xl font-bold text-slate-900 dark:text-white">
-                {profile?.points || 0}
-              </p>
-              <p className="text-sm text-slate-500 dark:text-slate-400">
-                Points
-              </p>
-            </div>
-            <div className="text-center p-4 rounded-lg bg-slate-50 dark:bg-slate-800">
-              <p className="text-2xl font-bold text-slate-900 dark:text-white">
-                {profile?.level || 1}
-              </p>
-              <p className="text-sm text-slate-500 dark:text-slate-400">
-                Level
-              </p>
-            </div>
-            <div className="text-center p-4 rounded-lg bg-slate-50 dark:bg-slate-800">
-              <p className="text-2xl font-bold text-slate-900 dark:text-white">
-                {profile?.badgesCount || 0}
-              </p>
-              <p className="text-sm text-slate-500 dark:text-slate-400">
-                Badges
-              </p>
-            </div>
-            <div className="text-center p-4 rounded-lg bg-slate-50 dark:bg-slate-800">
-              <p className="text-2xl font-bold text-slate-900 dark:text-white">
-                {profile?.connectionsCount || 0}
-              </p>
-              <p className="text-sm text-slate-500 dark:text-slate-400">
-                Connections
-              </p>
-            </div>
-          </div>
-        </Card>
+
 
         {/* Save Button */}
         <div className="flex justify-end gap-4">
