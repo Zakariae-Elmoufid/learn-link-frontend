@@ -519,3 +519,24 @@ export interface AdminDashboardStats {
     topSubjects: TopSubject[]
     generatedAt: string
 }
+
+export interface AdminUserResponse {
+    id: number
+    username: string
+    email: string
+    firstName: string
+    lastName: string
+    role: string
+    active: boolean
+    createdAt: string
+    lastLogin: string
+    totalPoints: number
+    level: number
+    bio?: string
+    profileImageUrl?: string
+    subjects?: string[]
+    badgesEarned?: number
+    postCount?: number
+    questionCount?: number
+    answerCount?: number
+}

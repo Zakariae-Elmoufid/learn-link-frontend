@@ -485,3 +485,4 @@ export {
 } from "./useGamification";
 
 export * from './useDashboard';
+export * from './useAdminUsers';
