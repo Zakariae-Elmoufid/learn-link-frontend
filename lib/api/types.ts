@@ -447,3 +447,47 @@ export interface CreateBadgeRequest {
     rarity: string
     pointsRequired: number
 }
+
+// ─── Dashboard ───────────────────────────────────────────────────────────────
+export interface DashboardStats {
+    totalPoints: number
+    level: number
+    pointsForNextLevel: number
+    currentLevelPoints: number
+    totalBadgesEarned: number
+    activeConnections: number
+    totalPostsCreated: number
+    totalQuestionsAsked: number
+    totalAnswersProvided: number
+    totalCommentsCreated: number
+    questionsResolved: number
+    answersAccepted: number
+}
+
+export interface RecentActivity {
+    type: string
+    title: string
+    description: string
+    createdAt: string
+    pointsEarned: number
+    badgeColor: string
+}
+
+export interface ContentCreationStats {
+    totalPostsCreated: number
+    totalQuestionsAsked: number
+    totalAnswersProvided: number
+    totalCommentsCreated: number
+    totalPostLikes: number
+    totalAnswersAccepted: number
+    questionsResolved: number
+    averageLikesPerPost: number
+    averageCommentsPerQuestion: number
+    engagementScore: number
+}
+
+export interface StudentDashboardResponse {
+    statistics: DashboardStats
+    recentActivities: RecentActivity[]
+    contentCreationStats: ContentCreationStats
+}
