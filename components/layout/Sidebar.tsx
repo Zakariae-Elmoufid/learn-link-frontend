@@ -16,6 +16,7 @@ import {
   Award,
   Calendar,
   UserPlus,
+  Shield,
 } from "lucide-react";
 import { cn } from "../../lib/utils";
 import { useAuthStore } from "../../stores";
@@ -88,6 +89,11 @@ const adminNavItems: NavItem[] = [
     label: "Users",
     href: "/admin/users",
     icon: <Users className="h-5 w-5" />,
+  },
+  {
+    label: "Moderators",
+    href: "/admin/moderators",
+    icon: <Shield className="h-5 w-5" />,
   },
 ];
 
