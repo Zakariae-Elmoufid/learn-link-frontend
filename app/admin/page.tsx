@@ -107,7 +107,7 @@ export default function AdminDashboardPage() {
                 {/* Content Engagement */}
                 <Card className="col-span-1 lg:col-span-2 p-6">
                     <h3 className="text-lg font-bold text-slate-900 dark:text-white mb-6 flex items-center gap-2">
-                        <MessageSquare className="h-5 w-5 text-primary-500" />
+                        <MessageSquare className="h-5 w-5 text-primary-500"/>
                         Engagement Metrics
                     </h3>
                     

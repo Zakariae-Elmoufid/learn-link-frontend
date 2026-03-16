@@ -548,6 +548,7 @@ export interface ModeratorPermission {
 }
 
 export interface ModeratorResponse {
+  currentPermissions: any;
   id: number;
   userId: number;
   username: string;
