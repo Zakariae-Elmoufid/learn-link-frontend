@@ -1,10 +1,24 @@
 'use client'
 
 import Link from 'next/link'
+import axios from 'axios'
 import { AlertCircle, FileWarning, MessageSquare, HelpCircle, FileText, MessageCircleMore, ShieldCheck, ShieldOff } from 'lucide-react'
 import { Card, Button } from '../../components/ui'
 import { useModerationContent } from '../../hookes'
 import { useModerationPermissions } from "@/hookes/useModerator";
+
+function getApiErrorMessage(error: unknown, fallback: string): string {
+  if (axios.isAxiosError<{ message?: string }>(error)) {
+    const apiMessage = error.response?.data?.message
+    if (apiMessage) return apiMessage
+  }
+
+  if (error instanceof Error && error.message) {
+    return error.message
+  }
+
+  return fallback
+}
 
 export default function ModeratorDashboardPage() {
   const postsQuery = useModerationContent('posts', false, { page: 0, size: 1, sort: 'createdAt' })
@@ -14,7 +28,6 @@ export default function ModeratorDashboardPage() {
   const permissionsQuery =   useModerationPermissions();
   const isLoading = postsQuery.isLoading || questionsQuery.isLoading || answersQuery.isLoading || commentsQuery.isLoading
   const hasError = postsQuery.isError || questionsQuery.isError || answersQuery.isError || commentsQuery.isError
-
   const cards = [
     {
       label: 'Posts',
@@ -112,7 +125,9 @@ export default function ModeratorDashboardPage() {
             Loading permissions…
           </div>
         ) : permissionsQuery.isError ? (
-          <p className="text-sm text-red-500">Could not load permissions. Please try again.</p>
+          <p className="text-sm text-red-500">
+            {getApiErrorMessage(permissionsQuery.error, 'Could not load permissions. Please try again.')}
+          </p>
         ) : permissionsQuery.data?.currentPermissions?.length ? (
           <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-3">
             {permissionsQuery.data.currentPermissions.map((perm) => (
@@ -122,7 +137,10 @@ export default function ModeratorDashboardPage() {
               >
                 <ShieldCheck className="h-4 w-4 text-emerald-600 dark:text-emerald-400 mt-0.5 shrink-0" />
                 <div>
-                  <p className="text-sm font-semibold text-slate-800 dark:text-slate-100">{perm}</p>
+                  <p className="text-sm font-semibold text-slate-800 dark:text-slate-100">{perm.permission}</p>
+                  {perm.description && (
+                    <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">{perm.description}</p>
+                  )}
                 </div>
               </div>
             ))}
