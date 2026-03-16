@@ -38,6 +38,11 @@ export default function LoginPage() {
         return;
     }
 
+    if (auth.user?.role === "MODERATOR") {
+      router.push("/moderator");
+      return;
+    }
+
     // Check if user profile exists
     try {
       await profileService.getById(auth.user.id);
@@ -110,7 +115,7 @@ export default function LoginPage() {
       </Card>
 
       <p className="mt-6 text-center text-sm text-slate-500">
-        Don't have an account?{" "}
+        Don&apos;t have an account?{" "}
         <Link
           href="/auth/register"
           className="font-medium text-primary-600 hover:underline"
