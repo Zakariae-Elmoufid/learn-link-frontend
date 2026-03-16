@@ -16,6 +16,8 @@ import {
   Award,
   Calendar,
   UserPlus,
+  Shield,
+  FileWarning,
 } from "lucide-react";
 import { cn } from "../../lib/utils";
 import { useAuthStore } from "../../stores";
@@ -78,9 +80,44 @@ const bottomNavItems: NavItem[] = [
   },
 ];
 
+const adminNavItems: NavItem[] = [
+  {
+    label: "Dashboard",
+    href: "/admin",
+    icon: <Home className="h-5 w-5" />,
+  },
+  {
+    label: "Users",
+    href: "/admin/users",
+    icon: <Users className="h-5 w-5" />,
+  },
+  {
+    label: "Moderators",
+    href: "/admin/moderators",
+    icon: <Shield className="h-5 w-5" />,
+  },
+  {
+    label: "Moderation",
+    href: "/admin/moderation",
+    icon: <FileWarning className="h-5 w-5" />,
+  },
+];
+
+const adminBottomNavItems: NavItem[] = [
+  {
+    label: "Settings",
+    href: "/admin/settings",
+    icon: <Settings className="h-5 w-5" />,
+  },
+];
+
 export function Sidebar() {
   const pathname = usePathname();
   const logout = useAuthStore((s) => s.logout);
+  const user = useAuthStore((s) => s.user);
+
+  const activeNavItems = user?.role === 'ADMIN' ? adminNavItems : mainNavItems;
+  const activeBottomNavItems = user?.role === 'ADMIN' ? adminBottomNavItems : bottomNavItems;
 
   const handleLogout = () => {
     logout();
@@ -102,7 +139,7 @@ export function Sidebar() {
 
         {/* Navigation */}
         <nav className="flex-1 space-y-1 overflow-y-auto px-3 py-4">
-          {mainNavItems.map((item) => {
+          {activeNavItems.map((item) => {
             const isActive = pathname === item.href;
             return (
               <Link
@@ -124,7 +161,7 @@ export function Sidebar() {
 
         {/* Bottom section */}
         <div className="border-t border-slate-200 px-3 py-4 dark:border-slate-800">
-          {bottomNavItems.map((item) => {
+          {activeBottomNavItems.map((item) => {
             const isActive = pathname === item.href;
             return (
               <Link

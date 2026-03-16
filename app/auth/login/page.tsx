@@ -33,6 +33,11 @@ export default function LoginPage() {
   async function onSubmit(data: FormValues) {
     const auth = await login.mutateAsync(data);
 
+    if (auth.user?.role === "ADMIN") {
+        router.push("/admin");
+        return;
+    }
+
     // Check if user profile exists
     try {
       await profileService.getById(auth.user.id);

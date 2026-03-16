@@ -6,7 +6,6 @@ import {
   UserProfileCreate,
   AuthUser,
   ConnectionRequest,
-
 } from "../lib/api/types";
 import { authService } from "../lib/api/services/auth.service";
 import {
@@ -393,8 +392,6 @@ export function useRemoveConnection() {
   });
 }
 
-
-
 // ─── Posts / Community Hooks ─────────────────────────────────────────────────
 export {
   usePosts,
@@ -484,4 +481,7 @@ export {
   useDeleteBadge,
 } from "./useGamification";
 
-export * from './useDashboard';
+export * from "./useDashboard";
+export * from "./useAdminUsers";
+export * from "./useAdminModerators";
+export * from "./useAdminModeration";
