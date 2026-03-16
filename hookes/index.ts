@@ -484,3 +484,4 @@ export {
 export * from "./useDashboard";
 export * from "./useAdminUsers";
 export * from "./useAdminModerators";
+export * from "./useAdminModeration";

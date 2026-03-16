@@ -4,7 +4,7 @@ import { StudentDashboardResponse, AdminDashboardStats } from '../types'
 export const dashboardService = {
     getStudentDashboard: () =>
         apiClient
-            .get<StudentDashboardResponse>('/gamification/dashboard')
+            .get<StudentDashboardResponse>('/dashboard')
             .then((r) => r.data),
     getAdminDashboard: () =>
         apiClient

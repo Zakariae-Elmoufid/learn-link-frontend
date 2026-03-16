@@ -491,10 +491,9 @@ export interface StudentDashboardResponse {
 }
 
 export interface TopSubject {
-  subjectId: number;
-  subjectName: string;
-  postCount: number;
-  questionCount: number;
+  subject: string;
+  count: number;
+  percentage: number;
 }
 
 export interface AdminDashboardStats {
@@ -572,4 +571,73 @@ export interface CreateModeratorRequest {
 
 export interface UpdateModeratorPermissionsRequest {
   permissions: string[];
+}
+
+// ─── Admin Moderation ───────────────────────────────────────────────────────
+
+export type ModerationContentType = "POST" | "QUESTION" | "ANSWER" | "COMMENT";
+export type ModerationAction = "HIDDEN" | "RESTORED" | "PERMANENTLY_DELETED";
+
+export interface AdminModerationContentItem {
+  id: number;
+  postId?: number;
+  answerId?: number;
+  userId: number;
+  username: string;
+  title?: string;
+  content: string;
+  category?: string;
+  type?: string;
+  viewCount?: number;
+  likes?: number;
+  likesCount?: number;
+  comments?: number;
+  hidden: boolean;
+  hiddenBy?: number;
+  hiddenByUsername?: string;
+  hiddenAt?: string;
+  hiddenReason?: string;
+  createdAt: string;
+  updatedAt?: string;
+}
+
+export interface ModerationLogItem {
+  id: number;
+  actionType: ModerationAction;
+  targetType: ModerationContentType;
+  contentId: number;
+  moderatorId: number;
+  moderatorUsername: string;
+  reason?: string;
+  createdAt: string;
+}
+
+export interface ModerationActionResponse {
+  success: boolean;
+  message: string;
+  action: ModerationAction;
+  targetId: number;
+  targetType: ModerationContentType;
+  reason?: string;
+  performedBy: number;
+  performedAt: string;
+}
+
+export interface ModerationReasonRequest {
+  reason: string;
+  notifyUser?: boolean;
+}
+
+export interface ModerationPageResponse<T> {
+  content: T[];
+  totalElements: number;
+  totalPages: number;
+  currentPage?: number;
+  pageSize?: number;
+  hasNext?: boolean;
+  hasPrevious?: boolean;
+  number?: number;
+  size?: number;
+  first?: boolean;
+  last?: boolean;
 }

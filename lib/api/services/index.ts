@@ -14,3 +14,4 @@ export { gamificationService } from "./gamification.service";
 export { dashboardService } from "./dashboard.service";
 export { adminUsersService } from "./admin-users.service";
 export { adminModeratorsService } from "./admin-moderators.service";
+export { adminModerationService } from "./admin-moderation.service";
