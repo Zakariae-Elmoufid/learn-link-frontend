@@ -25,17 +25,7 @@ export function Navbar({ onMenuClick }: NavbarProps) {
                     <Menu className="h-5 w-5 text-slate-600 dark:text-slate-400" />
                 </button>
 
-                {/* Search */}
-                <div className="hidden sm:flex items-center">
-                    <div className="relative">
-                        <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
-                        <input
-                            type="text"
-                            placeholder="Search courses, groups, users..."
-                            className="w-80 rounded-lg border border-slate-200 bg-slate-50 py-2 pl-10 pr-4 text-sm placeholder:text-slate-400 focus:border-primary-500 focus:bg-white focus:outline-none focus:ring-2 focus:ring-primary-500/20 dark:border-slate-700 dark:bg-slate-800 dark:focus:bg-slate-800"
-                        />
-                    </div>
-                </div>
+
             </div>
 
             {/* Right side */}

@@ -39,11 +39,7 @@ const mainNavItems: NavItem[] = [
     href: "/student/profile",
     icon: <User className="h-5 w-5" />,
   },
-  {
-    label: "Courses",
-    href: "/student/courses",
-    icon: <BookOpen className="h-5 w-5" />,
-  },
+
   {
     label: "Connections",
     href: "/student/connections",
