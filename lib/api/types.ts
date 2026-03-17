@@ -135,6 +135,51 @@ export interface TypingNotification {
   timestamp: string;
 }
 
+// ─── Notifications ──────────────────────────────────────────────────────────
+
+export type NotificationType =
+  | "POST_LIKED"
+  | "POST_COMMENTED"
+  | "QUESTION_ANSWERED"
+  | "ANSWER_ACCEPTED"
+  | "ANSWER_VOTED"
+  | "CONNECTION_REQUEST"
+  | "CONNECTION_ACCEPTED"
+  | "BADGE_EARNED"
+  | "POINTS_EARNED"
+  | "NEW_MESSAGE";
+
+export interface NotificationPayload {
+  postId?: number;
+  questionId?: number;
+  answerId?: number;
+  messageId?: number;
+  link?: string;
+  [key: string]: unknown;
+}
+
+export interface NotificationResponse {
+  id: number;
+  type: NotificationType;
+  typeName: string;
+  title: string;
+  message: string;
+  data: NotificationPayload;
+  isRead: boolean;
+  createdAt: string;
+}
+
+export interface NotificationCountResponse {
+  userId: number;
+  unreadCount: number;
+}
+
+export interface NotificationPageResponse {
+  content: NotificationResponse[];
+  totalElements: number;
+  totalPages: number;
+}
+
 export interface ReadReceiptRequest {
   messageId: number;
 }
