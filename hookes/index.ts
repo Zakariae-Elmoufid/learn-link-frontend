@@ -196,6 +196,16 @@ export {
   messageKeys,
 } from "./useMessaging";
 
+// ─── Notification Hooks ─────────────────────────────────────────────────────
+export {
+  useUnreadNotifications,
+  useNotificationUnreadCount,
+  useMarkNotificationAsRead,
+  useMarkAllNotificationsAsRead,
+  useNotificationRealtime,
+  notificationKeys,
+} from "./useNotifications";
+
 // ─── WebSocket Hook ──────────────────────────────────────────────────────────
 export { useWebSocket } from "./useWebSocket";
 
