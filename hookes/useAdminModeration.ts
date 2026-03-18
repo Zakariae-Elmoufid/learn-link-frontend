@@ -1,4 +1,5 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
+import axios from 'axios'
 import toast from 'react-hot-toast'
 import { adminModerationService } from '../lib/api/services/admin-moderation.service'
 
@@ -22,6 +23,19 @@ const QUERY_KEYS = {
   content: (type: ModerationUiContentType, hiddenOnly: boolean, params: ModerationListParams) =>
     [...QUERY_KEYS.root, 'content', type, hiddenOnly, params] as const,
   logs: (params: ModerationLogsParams) => [...QUERY_KEYS.root, 'logs', params] as const,
+}
+
+function getApiErrorMessage(error: unknown, fallback: string): string {
+  if (axios.isAxiosError<{ message?: string }>(error)) {
+    const apiMessage = error.response?.data?.message
+    if (apiMessage) return apiMessage
+  }
+
+  if (error instanceof Error && error.message) {
+    return error.message
+  }
+
+  return fallback
 }
 
 export function useModerationContent(
@@ -101,7 +115,7 @@ export function useHideModerationContent() {
       toast.success('Content hidden successfully')
       queryClient.invalidateQueries({ queryKey: QUERY_KEYS.root })
     },
-    onError: () => toast.error('Failed to hide content'),
+    onError: (error) => toast.error(getApiErrorMessage(error, 'Failed to hide content')),
   })
 }
 
@@ -127,7 +141,7 @@ export function useRestoreModerationContent() {
       toast.success('Content restored successfully')
       queryClient.invalidateQueries({ queryKey: QUERY_KEYS.root })
     },
-    onError: () => toast.error('Failed to restore content'),
+    onError: (error) => toast.error(getApiErrorMessage(error, 'Failed to restore content')),
   })
 }
 
@@ -155,6 +169,6 @@ export function useDeleteModerationContent() {
       toast.success('Content permanently deleted')
       queryClient.invalidateQueries({ queryKey: QUERY_KEYS.root })
     },
-    onError: () => toast.error('Failed to permanently delete content'),
+    onError: (error) => toast.error(getApiErrorMessage(error, 'Failed to permanently delete content')),
   })
 }

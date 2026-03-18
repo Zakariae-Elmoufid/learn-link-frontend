@@ -163,10 +163,7 @@ export default function MessagesPage() {
     window.location.href = "/student/connections";
   };
 
-  const handleExploreGroups = () => {
-    // Navigate to groups page
-    window.location.href = "/student/groups";
-  };
+
 
   // Mobile responsive state
   const [showChat, setShowChat] = useState(false);
@@ -225,7 +222,6 @@ export default function MessagesPage() {
         ) : (
           <MessagingEmptyState
             onFindPartners={handleFindPartners}
-            onExploreGroups={handleExploreGroups}
           />
         )}
       </div>

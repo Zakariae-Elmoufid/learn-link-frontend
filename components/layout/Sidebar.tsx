@@ -10,7 +10,6 @@ import {
   Users,
   MessageSquare,
   Globe,
-  Bell,
   Settings,
   LogOut,
   Award,
@@ -107,13 +106,42 @@ const adminBottomNavItems: NavItem[] = [
   },
 ];
 
+const moderatorNavItems: NavItem[] = [
+  {
+    label: "Dashboard",
+    href: "/moderator",
+    icon: <Home className="h-5 w-5" />,
+  },
+  {
+    label: "Moderation",
+    href: "/moderator/moderation",
+    icon: <FileWarning className="h-5 w-5" />,
+  },
+];
+
+const moderatorBottomNavItems: NavItem[] = [
+  {
+    label: "Settings",
+    href: "/moderator/settings",
+    icon: <Settings className="h-5 w-5" />,
+  },
+];
+
 export function Sidebar() {
   const pathname = usePathname();
   const logout = useAuthStore((s) => s.logout);
   const user = useAuthStore((s) => s.user);
 
-  const activeNavItems = user?.role === 'ADMIN' ? adminNavItems : mainNavItems;
-  const activeBottomNavItems = user?.role === 'ADMIN' ? adminBottomNavItems : bottomNavItems;
+  const activeNavItems = user?.role === 'ADMIN'
+    ? adminNavItems
+    : user?.role === 'MODERATOR'
+      ? moderatorNavItems
+      : mainNavItems;
+  const activeBottomNavItems = user?.role === 'ADMIN'
+    ? adminBottomNavItems
+    : user?.role === 'MODERATOR'
+      ? moderatorBottomNavItems
+      : bottomNavItems;
 
   const handleLogout = () => {
     logout();

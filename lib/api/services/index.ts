@@ -15,3 +15,4 @@ export { dashboardService } from "./dashboard.service";
 export { adminUsersService } from "./admin-users.service";
 export { adminModeratorsService } from "./admin-moderators.service";
 export { adminModerationService } from "./admin-moderation.service";
+export { notificationService } from "./notification.service";
