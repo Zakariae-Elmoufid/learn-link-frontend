@@ -19,7 +19,9 @@ import {
   FileWarning,
 } from "lucide-react";
 import { cn } from "../../lib/utils";
-import { useAuthStore } from "../../stores";
+import { useAuthStore, useMessageStore } from "../../stores";
+import { useUnreadCount } from "../../hookes/useMessaging";
+import { useWebSocket } from "../../hookes/useWebSocket";
 
 interface NavItem {
   label: string;
@@ -132,6 +134,13 @@ export function Sidebar() {
   const logout = useAuthStore((s) => s.logout);
   const user = useAuthStore((s) => s.user);
 
+  const totalUnreadCount = useMessageStore((s) => s.totalUnreadCount);
+  
+  // Globally start polling for unread messages when sidebar is mounted
+  useUnreadCount();
+  // Keep the WebSocket connected globally so incoming messages update the badge live!
+  useWebSocket();
+
   const activeNavItems = user?.role === 'ADMIN'
     ? adminNavItems
     : user?.role === 'MODERATOR'
@@ -170,14 +179,21 @@ export function Sidebar() {
                 key={item.href}
                 href={item.href as Route}
                 className={cn(
-                  "flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-colors",
+                  "flex items-center justify-between rounded-lg px-3 py-2.5 text-sm font-medium transition-colors",
                   isActive
                     ? "bg-primary-50 text-primary-700 dark:bg-primary-900/20 dark:text-primary-400"
                     : "text-slate-600 hover:bg-slate-100 hover:text-slate-900 dark:text-slate-400 dark:hover:bg-slate-800 dark:hover:text-white",
                 )}
               >
-                {item.icon}
-                {item.label}
+                <div className="flex items-center gap-3">
+                  {item.icon}
+                  {item.label}
+                </div>
+                {item.label === "Messages" && totalUnreadCount > 0 && (
+                  <span className="flex h-5 min-w-[20px] items-center justify-center rounded-full bg-red-500 px-1.5 text-[10px] font-bold text-white shadow-sm ring-2 ring-white dark:ring-slate-900">
+                    {totalUnreadCount > 99 ? '99+' : totalUnreadCount}
+                  </span>
+                )}
               </Link>
             );
           })}
