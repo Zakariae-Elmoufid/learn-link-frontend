@@ -43,7 +43,7 @@ export const createWebSocketClient = (token?: string): Client => {
     }
 
     const wsBaseUrl = API_BASE_URL.replace('/api', '')
-    const wsUrl = `${wsBaseUrl}/chat?token=${accessToken.substring(0, 20)}...`
+
 
     client = new Client({
         webSocketFactory: () => new SockJS(`${wsBaseUrl}/chat?token=${accessToken}`),
