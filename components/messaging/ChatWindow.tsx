@@ -14,6 +14,8 @@ interface ChatWindowProps {
   messages: MessageResponse[];
   currentUserId: number;
   onSendMessage: (content: string) => void;
+  onTyping?: (isTyping: boolean) => void;
+  isOtherUserTyping?: boolean;
   isLoading?: boolean;
   isSending?: boolean;
   hasMoreMessages?: boolean;
@@ -46,6 +48,8 @@ export function ChatWindow({
   messages,
   currentUserId,
   onSendMessage,
+  onTyping,
+  isOtherUserTyping,
   isLoading,
   isSending,
   hasMoreMessages,
@@ -221,11 +225,21 @@ export function ChatWindow({
             ))}
           </>
         )}
+        {isOtherUserTyping && (
+            <div className="flex items-center gap-2 text-slate-500 dark:text-slate-400 text-sm italic ml-2 py-2">
+              <div className="flex bg-slate-100 dark:bg-slate-800 rounded-full px-3 py-1.5 gap-1 shadow-sm">
+                <span className="h-1.5 w-1.5 bg-slate-400 rounded-full animate-bounce" style={{ animationDelay: '0ms' }}></span>
+                <span className="h-1.5 w-1.5 bg-slate-400 rounded-full animate-bounce" style={{ animationDelay: '150ms' }}></span>
+                <span className="h-1.5 w-1.5 bg-slate-400 rounded-full animate-bounce" style={{ animationDelay: '300ms' }}></span>
+              </div>
+              <span>{conversation.participant.firstName || 'User'} is typing...</span>
+            </div>
+        )}
         <div ref={messagesEndRef} />
       </div>
 
       {/* Input */}
-      <MessageInput onSendMessage={onSendMessage} disabled={isSending} />
+      <MessageInput onSendMessage={onSendMessage} disabled={isSending} onTyping={onTyping} />
     </div>
   );
 }

@@ -6,13 +6,15 @@ import { cn } from '../../lib/utils'
 
 interface MessageInputProps {
     onSendMessage: (content: string) => void
+    onTyping?: (isTyping: boolean) => void
     disabled?: boolean
     placeholder?: string
 }
 
-export function MessageInput({ onSendMessage, disabled, placeholder = 'Type a message...' }: MessageInputProps) {
+export function MessageInput({ onSendMessage, onTyping, disabled, placeholder = 'Type a message...' }: MessageInputProps) {
     const [message, setMessage] = useState('')
     const textareaRef = useRef<HTMLTextAreaElement>(null)
+    const typingTimeoutRef = useRef<NodeJS.Timeout | null>(null)
 
     const handleSend = () => {
         const trimmedMessage = message.trim()
@@ -20,6 +22,11 @@ export function MessageInput({ onSendMessage, disabled, placeholder = 'Type a me
 
         onSendMessage(trimmedMessage)
         setMessage('')
+        
+        if (onTyping) {
+            onTyping(false)
+            if (typingTimeoutRef.current) clearTimeout(typingTimeoutRef.current)
+        }
 
         // Reset textarea height
         if (textareaRef.current) {
@@ -36,6 +43,14 @@ export function MessageInput({ onSendMessage, disabled, placeholder = 'Type a me
 
     const handleInputChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
         setMessage(e.target.value)
+
+        if (onTyping) {
+            onTyping(true)
+            if (typingTimeoutRef.current) clearTimeout(typingTimeoutRef.current)
+            typingTimeoutRef.current = setTimeout(() => {
+                onTyping(false)
+            }, 2000)
+        }
 
         // Auto-resize textarea
         if (textareaRef.current) {

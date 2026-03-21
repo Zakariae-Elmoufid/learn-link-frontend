@@ -89,6 +89,11 @@ export function useWebSocket() {
             // Add message to the active chat
             console.log("[WS] Adding message to active chat")
             addMessageRef.current(message)
+            
+            // Immediately mark it as read via WebSocket if we are currently engaged in this chat
+            if (!isSentByMe) {
+                sendReadReceipt(message.id)
+            }
         } else {
             console.log("[WS] Message is for a different conversation, not adding to chat view")
         }
@@ -124,6 +129,15 @@ export function useWebSocket() {
 
         // Refresh conversations list
         queryClient.invalidateQueries({ queryKey: messageKeys.conversations() })
+        
+        // Invalidate the message cache for this specific conversation so it reflects the new message when opened/re-opened
+        queryClient.invalidateQueries({ queryKey: messageKeys.conversation(otherParticipantId) })
+
+        // Update the global unread count
+        if (!isSentByMe && !isForActiveConversation) {
+            queryClient.invalidateQueries({ queryKey: messageKeys.unreadCount() })
+        }
+        
         console.log("[WS] ===== MESSAGE PROCESSED =====")
     }, [queryClient])
 
@@ -157,6 +171,9 @@ export function useWebSocket() {
             onConnect: () => {
                 console.log("[WS] WebSocket connected - ready to receive messages")
                 setIsConnected(true)
+                
+                // Re-sync any messages that might have been missed while the WebSocket was disconnected
+                queryClient.invalidateQueries({ queryKey: messageKeys.all })
             },
             onDisconnect: () => {
                 console.log("[WS] WebSocket disconnected")

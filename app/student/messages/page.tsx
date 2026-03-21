@@ -38,7 +38,16 @@ export default function MessagesPage() {
   } = useMessageStore();
 
   // Initialize WebSocket connection
-  const { sendMessage: sendWebSocketMessage, isConnected } = useWebSocket();
+  const { sendMessage: sendWebSocketMessage, isConnected, setTyping } = useWebSocket();
+
+  const typingUsers = useMessageStore(s => s.typingUsers);
+  const isOtherUserTyping = activeConversationId ? typingUsers.has(activeConversationId) : false;
+
+  const handleTyping = (isTyping: boolean) => {
+    if (isConnected && activeConversationId) {
+      setTyping(activeConversationId, isTyping);
+    }
+  };
 
   // Debug: Log only after mount (avoid hydration issues)
   useEffect(() => {
@@ -99,7 +108,7 @@ export default function MessagesPage() {
       : null
   );
 
-  // Mark conversation as read when selected
+  // Mark conversation as read when selected or when new messages arrive
   useEffect(() => {
     if (
       activeConversationId &&
@@ -108,7 +117,7 @@ export default function MessagesPage() {
     ) {
       markAsRead.mutate(activeConversationId);
     }
-  }, [activeConversationId]);
+  }, [activeConversationId, activeConversation?.unreadCount]);
 
   const handleSelectConversation = (participantId: number) => {
     setActiveConversation(participantId);
@@ -213,6 +222,8 @@ export default function MessagesPage() {
             messages={messages}
             currentUserId={user?.id ?? 0}
             onSendMessage={handleSendMessage}
+            onTyping={handleTyping}
+            isOtherUserTyping={isOtherUserTyping}
             isLoading={messagesLoading || isFetchingNextPage}
             isSending={sendMessageMutation.isPending}
             hasMoreMessages={hasNextPage}

@@ -45,12 +45,8 @@ export const createWebSocketClient = (token?: string): Client => {
     const wsBaseUrl = API_BASE_URL.replace('/api', '')
     const wsUrl = `${wsBaseUrl}/chat?token=${accessToken.substring(0, 20)}...`
 
-    
-    // Create SockJS - token passed via query param for HandshakeInterceptor
-    const socket = new SockJS(`${wsBaseUrl}/chat?token=${accessToken}`)
-
     client = new Client({
-        webSocketFactory: () => socket,
+        webSocketFactory: () => new SockJS(`${wsBaseUrl}/chat?token=${accessToken}`),
         
         // Also pass token in STOMP headers for the ChannelInterceptor
         connectHeaders: {
@@ -74,16 +70,19 @@ export const createWebSocketClient = (token?: string): Client => {
 
         onDisconnect: () => {
             console.log("WebSocket disconnected")
+            isConnecting = false
             callbacks.onDisconnect?.()
         },
 
         onStompError: (frame) => {
             console.error("STOMP error:", frame.headers["message"])
+            isConnecting = false
             callbacks.onError?.(frame.headers["message"] || "WebSocket error")
         },
 
         onWebSocketError: (event) => {
             console.error("WebSocket error:", event)
+            isConnecting = false
             callbacks.onError?.("WebSocket connection error")
         },
     })
@@ -141,7 +140,12 @@ const subscribeToQueues = () => {
     console.log("[WS] All subscriptions complete")
 }
 
+let connectionCount = 0
+
 export const connectWebSocket = (): Promise<void> => {
+    connectionCount++
+    console.log("[WS] connectWebSocket called. connectionCount:", connectionCount)
+
     return new Promise((resolve, reject) => {
         if (client?.active) {
             resolve()
@@ -169,23 +173,42 @@ export const connectWebSocket = (): Promise<void> => {
                 resolve()
             }
 
+            const originalOnStompError = wsClient.onStompError
             wsClient.onStompError = (frame) => {
                 isConnecting = false
+                connectionCount = 0
+                originalOnStompError?.(frame)
                 reject(new Error(frame.headers["message"] || "Connection failed"))
+            }
+
+            const originalOnWebSocketError = wsClient.onWebSocketError
+            wsClient.onWebSocketError = (event) => {
+                isConnecting = false
+                connectionCount = 0
+                originalOnWebSocketError?.(event)
+                reject(new Error("WebSocket connection error"))
             }
 
             wsClient.activate()
         } catch (error) {
             isConnecting = false
+            connectionCount = 0
             reject(error)
         }
     })
 }
 
 export const disconnectWebSocket = () => {
-    if (client?.active) {
-        client.deactivate()
-        client = null
+    connectionCount--
+    console.log("[WS] disconnectWebSocket called. connectionCount:", connectionCount)
+    
+    if (connectionCount <= 0) {
+        if (client) {
+            client.deactivate()
+            client = null
+        }
+        isConnecting = false
+        connectionCount = 0
     }
 }
 
