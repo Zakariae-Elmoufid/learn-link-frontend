@@ -43,12 +43,10 @@ export const createWebSocketClient = (token?: string): Client => {
     }
 
     const wsBaseUrl = API_BASE_URL.replace('/api', '')
-    const wsUrl = `${wsBaseUrl}/chat?token=${accessToken.substring(0, 20)}...`
 
     
-    // Create SockJS - token passed via query param for HandshakeInterceptor
-    const socket = new SockJS(`${wsBaseUrl}/chat?token=${accessToken}`)
-
+    // Create SockJS
+    const socket = new SockJS(`http://localhost:8081/chat`)
     client = new Client({
         webSocketFactory: () => socket,
         

@@ -10,11 +10,11 @@ import {
 import { notificationService } from "../lib/api/services/notification.service";
 import { useAuthStore } from "../stores";
 
-const DEFAULT_WS_URL = "http://localhost:8081/ws";
+const DEFAULT_WS_URL = "http://localhost:8081/chat";
 
 function toStompWsUrl(rawUrl: string): string {
-  if (rawUrl.startsWith("http://")) return rawUrl.replace("http://", "ws://");
-  if (rawUrl.startsWith("https://")) return rawUrl.replace("https://", "wss://");
+  if (rawUrl.startsWith("http://")) return rawUrl.replace("http://", "chat://");
+  if (rawUrl.startsWith("https://")) return rawUrl.replace("https://", "chat://");
   return rawUrl;
 }
 

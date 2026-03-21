@@ -446,12 +446,19 @@ function MonthView({ tasks, currentDate, onDateChange, onTaskClick }: any) {
                     <div key={`empty-${i}`} className="bg-gray-50 p-4 min-h-28" />
                 ))}
 
-                {Array.from({ length: maxDays }, (_, i) => i + 1).map((day) => (
+                {Array.from({ length: maxDays }, (_, i) => i + 1).map((day) => {
+                    const date = new Date(currentDate.getFullYear(), currentDate.getMonth(), day)
+                    const isToday = date.toDateString() === new Date().toDateString()
+                    return (
                     <div
                         key={day}
-                        className="bg-white p-4 min-h-28 border-r border-b border-gray-200 hover:bg-gray-50 transition-colors cursor-pointer"
+                        className={`p-4 min-h-28 border-r border-b border-gray-200 hover:bg-gray-50 transition-colors cursor-pointer ${
+                            isToday ? 'bg-blue-50 border-l-4 border-l-blue-600' : 'bg-white'
+                        }`}
                     >
-                        <p className="text-sm font-semibold text-gray-900 mb-2">{day}</p>
+                        <p className={`text-sm font-semibold mb-2 ${
+                            isToday ? 'text-blue-600' : 'text-gray-900'
+                        }`}>{day}</p>
                         <div className="space-y-1">
                             {getTasksForDate(day).map((task: any) => (
                                 <div
@@ -464,7 +471,8 @@ function MonthView({ tasks, currentDate, onDateChange, onTaskClick }: any) {
                             ))}
                         </div>
                     </div>
-                ))}
+                    )
+                })}
             </div>
         </div>
     )
@@ -524,7 +532,7 @@ function WeekView({ tasks, currentDate, onDateChange, onConfirm, onCancel, onTas
                         <div key={idx} className="min-w-max sm:min-w-0">
                             <div className="text-center mb-4">
                                 <p className="text-xs font-semibold text-blue-600">{dayLabels[idx]}</p>
-                                <p className={`text-2xl font-bold ${date.getDate() === 14 ? 'text-blue-600 bg-blue-100 rounded-full w-10 h-10 flex items-center justify-center mx-auto' : 'text-gray-900'}`}>
+                                <p className={`text-2xl font-bold ${date.toDateString() === new Date().toDateString() ? 'text-blue-600 bg-blue-100 rounded-full w-10 h-10 flex items-center justify-center mx-auto' : 'text-gray-900'}`}>
                                     {date.getDate()}
                                 </p>
                             </div>
@@ -664,7 +672,7 @@ export default function PlannerPage() {
     const [isDetailModalOpen, setIsDetailModalOpen] = useState(false)
     const [selectedTask, setSelectedTask] = useState<any>(null)
     const [view, setView] = useState<ViewType>('month')
-    const [currentDate, setCurrentDate] = useState(new Date(2026, 2, 14)) // March 14, 2026
+    const [currentDate, setCurrentDate] = useState(new Date())
 
     const handleCreateTask = async (data: TaskRequest) => {
         try {

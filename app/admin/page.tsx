@@ -131,29 +131,43 @@ export default function AdminDashboardPage() {
 
                     <div className="mt-8">
                         <h4 className="text-sm font-bold text-slate-900 dark:text-white mb-4 uppercase tracking-wider">Most Active Subjects</h4>
-                        <div className="space-y-3">
-                            {topSubjects.length > 0 ? topSubjects.map((subject, idx) => (
-                                <div key={subject.subject} className="flex items-center justify-between p-3 rounded-lg hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors border border-transparent hover:border-slate-100 dark:hover:border-slate-700">
-                                    <div className="flex items-center gap-3">
-                                        <div className="w-8 h-8 rounded-full bg-primary-100 dark:bg-primary-900/30 text-primary-600 dark:text-primary-400 flex items-center justify-center font-bold text-sm">
-                                            {idx + 1}
+                        <div className="space-y-4">
+                            {topSubjects.length > 0 ? (() => {
+                                const maxCount = Math.max(...topSubjects.map(s => s.count), 1)
+                                return topSubjects.map((subject, idx) => {
+                                    const percentage = (subject.count / maxCount) * 100
+                                    return (
+                                        <div key={subject.subject} className="space-y-2">
+                                            <div className="flex items-center justify-between">
+                                                <div className="flex items-center gap-3">
+                                                    <div className="w-8 h-8 rounded-full bg-primary-100 dark:bg-primary-900/30 text-primary-600 dark:text-primary-400 flex items-center justify-center font-bold text-sm">
+                                                        {idx + 1}
+                                                    </div>
+                                                    <span className="font-semibold text-slate-700 dark:text-slate-200">
+                                                        {subject.subject}
+                                                    </span>
+                                                </div>
+                                                <div className="flex items-center gap-4 text-sm font-medium">
+                                                    <div className="flex items-center gap-1.5 text-slate-600 dark:text-slate-400">
+                                                        <BookOpen className="w-4 h-4" />
+                                                        {subject.count} posts
+                                                    </div>
+                                                    <div className="flex items-center gap-1.5 text-slate-600 dark:text-slate-400 min-w-16">
+                                                        <MessageSquare className="w-4 h-4" />
+                                                        {subject.count} questions
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div className="w-full bg-slate-200 dark:bg-slate-700 rounded-full h-2">
+                                                <div 
+                                                    className="bg-blue-600 dark:bg-blue-500 h-2 rounded-full transition-all duration-300"
+                                                    style={{ width: `${percentage}%` }}
+                                                ></div>
+                                            </div>
                                         </div>
-                                        <span className="font-semibold text-slate-700 dark:text-slate-200">
-                                            {subject.subject}
-                                        </span>
-                                    </div>
-                                    <div className="flex items-center gap-4 text-sm font-medium">
-                                        <div className="flex items-center gap-1.5 text-slate-600 dark:text-slate-400">
-                                            <BookOpen className="w-4 h-4" />
-                                            {subject.count}
-                                        </div>
-                                        <div className="flex items-center gap-1.5 text-slate-600 dark:text-slate-400 min-w-10">
-                                            <MessageSquare className="w-4 h-4" />
-                                            {subject.count}
-                                        </div>
-                                    </div>
-                                </div>
-                            )) : (
+                                    )
+                                })
+                            })() : (
                                 <p className="text-sm text-slate-500 py-4 text-center">No active subjects to display.</p>
                             )}
                         </div>
