@@ -15,6 +15,7 @@ import {
     useUpdateQuestion,
     useVoteAnswer,
 } from '../../hookes'
+import { useAuthStore } from '../../stores'
 import type { AnswerResponse, VoteType } from '../../lib/api/types'
 import { Avatar, Badge, Button, Input, Skeleton, Textarea } from '../ui'
 import { formatRelativeTime } from './utils'
@@ -25,9 +26,10 @@ interface QuestionDetailsModalProps {
 }
 
 export function QuestionDetailsModal({ questionId, onClose }: QuestionDetailsModalProps) {
-    const { data: profile } = useMyProfile()
+    const { data: profile, isLoading: isProfileLoading } = useMyProfile()
     const { data: question, isLoading: isQuestionLoading } = useQuestion(questionId)
     const { data: answers, isLoading: isAnswersLoading } = useQuestionAnswers(questionId)
+    const authUser = useAuthStore((s) => s.user)
     const updateQuestion = useUpdateQuestion()
     const deleteQuestion = useDeleteQuestion()
     const createAnswer = useCreateAnswer()
@@ -52,7 +54,8 @@ export function QuestionDetailsModal({ questionId, onClose }: QuestionDetailsMod
 
     if (!questionId) return null
 
-    const currentUserId = profile?.userId
+    // Get current user ID from auth store
+    const currentUserId = authUser?.id ?? null
 
     const saveQuestionEdit = async () => {
         if (!question) return
@@ -125,11 +128,20 @@ export function QuestionDetailsModal({ questionId, onClose }: QuestionDetailsMod
                     <>
                         <div className="rounded-xl border border-slate-200 p-4">
                             <div className="flex items-center justify-between gap-3">
-                                <div>
+                                <div className="flex-1">
                                     <h3 className="text-xl font-bold text-slate-950">{question.title}</h3>
-                                    <p className="mt-1 text-xs text-slate-400">
-                                        Asked by Student #{question.userId} · {formatRelativeTime(question.createdAt)}
-                                    </p>
+                                    <div className="mt-2 flex items-center gap-2">
+                                        {question.profilePictureUrl && (
+                                            <img
+                                                src={question.profilePictureUrl}
+                                                alt={question.username}
+                                                className="h-6 w-6 rounded-full object-cover"
+                                            />
+                                        )}
+                                        <p className="text-xs text-slate-400">
+                                            Asked by <span className="font-medium text-slate-700">{question.username}</span> · {formatRelativeTime(question.createdAt)}
+                                        </p>
+                                    </div>
                                 </div>
                                 <div className="flex items-center gap-2">
                                     <Badge variant={question.isResolved ? 'accent' : 'gray'}>
@@ -239,13 +251,22 @@ export function QuestionDetailsModal({ questionId, onClose }: QuestionDetailsMod
                                     answers.map((answer) => (
                                         <div key={answer.id} className="rounded-xl bg-slate-50 px-4 py-3">
                                             <div className="flex items-start justify-between gap-3">
-                                                <div>
-                                                    <p className="text-sm font-semibold text-slate-900">
-                                                        Student #{answer.userId}
-                                                    </p>
-                                                    <p className="text-xs text-slate-400">
-                                                        {formatRelativeTime(answer.createdAt)}
-                                                    </p>
+                                                <div className="flex items-center gap-2">
+                                                    {answer.profilePictureUrl && (
+                                                        <img
+                                                            src={answer.profilePictureUrl}
+                                                            alt={answer.username}
+                                                            className="h-8 w-8 rounded-full object-cover"
+                                                        />
+                                                    )}
+                                                    <div>
+                                                        <p className="text-sm font-semibold text-slate-900">
+                                                            {answer.username}
+                                                        </p>
+                                                        <p className="text-xs text-slate-400">
+                                                            {formatRelativeTime(answer.createdAt)}
+                                                        </p>
+                                                    </div>
                                                 </div>
                                                 <div className="flex items-center gap-2">
                                                     {answer.isAccepted && (
@@ -254,13 +275,14 @@ export function QuestionDetailsModal({ questionId, onClose }: QuestionDetailsMod
                                                             Accepted
                                                         </span>
                                                     )}
-
-                                                    {question.userId === currentUserId &&
-                                                        !question.isResolved &&
+                                                    {currentUserId &&
+                                                        question?.userId === currentUserId &&
+                                                        !question?.isResolved &&
                                                         !answer.isAccepted && (
                                                             <Button
                                                                 size="sm"
                                                                 variant="outline"
+                                                                loading={acceptAnswer.isPending}
                                                                 onClick={() =>
                                                                     acceptAnswer.mutate({
                                                                         answerId: answer.id,

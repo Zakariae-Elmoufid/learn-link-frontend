@@ -320,9 +320,9 @@ export default function FinalizeProfilePage() {
                     <footer className="mt-12 text-center text-xs text-slate-400 space-y-2">
                         <p>© {new Date().getFullYear()} LearnLink Educational Platform</p>
                         <div className="flex justify-center gap-4">
-                            <Link href="/privacy" className="hover:text-slate-600">Privacy Policy</Link>
-                            <Link href="/terms" className="hover:text-slate-600">Terms of Service</Link>
-                            <Link href="/help" className="hover:text-slate-600">Help Center</Link>
+                            <a className="hover:text-slate-600">Privacy Policy</a>
+                            <a className="hover:text-slate-600">Terms of Service</a>
+                            <a  className="hover:text-slate-600">Help Center</a>
                         </div>
                     </footer>
                 </div>

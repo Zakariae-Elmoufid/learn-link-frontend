@@ -159,14 +159,23 @@ export function QuestionsSection() {
                                 className="w-full text-left"
                             >
                                 <div className="flex items-start justify-between gap-4">
-                                    <div>
+                                    <div className="flex-1">
                                         <h3 className="text-lg font-semibold text-slate-950 hover:text-amber-700 transition-colors">
                                             {question.title}
                                         </h3>
+                                        <div className="mt-2 flex items-center gap-2">
+                                            {question.profilePictureUrl && (
+                                                <img
+                                                    src={question.profilePictureUrl}
+                                                    alt={question.username}
+                                                    className="h-5 w-5 rounded-full object-cover"
+                                                />
+                                            )}
+                                            <p className="text-xs text-slate-400">
+                                                Asked by <span className="font-medium text-slate-600">{question.username}</span> · {formatRelativeTime(question.createdAt)}
+                                            </p>
+                                        </div>
                                         <p className="mt-2 text-sm text-slate-600 line-clamp-3">{question.content}</p>
-                                        <p className="mt-2 text-xs text-slate-400">
-                                            Asked {formatRelativeTime(question.createdAt)}
-                                        </p>
                                     </div>
                                     <Badge variant={question.isResolved ? 'accent' : 'gray'}>
                                         {question.isResolved ? 'Resolved' : 'Open'}

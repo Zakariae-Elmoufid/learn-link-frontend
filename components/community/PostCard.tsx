@@ -20,10 +20,18 @@ export const PostCard = memo(function PostCard({
         <Card padding="lg" className="border border-slate-200/80 bg-white shadow-sm">
             <div className="flex items-start justify-between gap-4">
                 <div className="flex items-start gap-3">
-                    <Avatar name={`User ${post.userId}`} size="md" />
+                    {post.profilePictureUrl ? (
+                        <img
+                            src={post.profilePictureUrl}
+                            alt={post.username}
+                            className="h-10 w-10 rounded-full object-cover"
+                        />
+                    ) : (
+                        <Avatar name={post.username} size="md" />
+                    )}
                     <div>
                         <div className="flex flex-wrap items-center gap-2">
-                            <p className="text-sm font-semibold text-slate-900">Student #{post.userId}</p>
+                            <p className="text-sm font-semibold text-slate-900">{post.username}</p>
                             <span className="text-xs text-slate-400">{formatRelativeTime(post.createdAt)}</span>
                         </div>
                         <div className="mt-2 flex flex-wrap gap-2">

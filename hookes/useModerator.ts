@@ -7,7 +7,7 @@ type PermissionLike = string | Partial<ModeratorPermission>;
 
 function normalizePermissions(list: PermissionLike[] = []): ModeratorPermission[] {
     return list
-        .map((item, index) => {
+        .map((item, index): ModeratorPermission | null => {
             if (typeof item === "string") {
                 return {
                     id: index,

@@ -146,8 +146,9 @@ export const Input = React.forwardRef<HTMLInputElement, InputProps>(
                 export function Avatar({ src, name, size = 'md', className, online }: AvatarProps) {
                     const sizes = { xs: 'h-6 w-6 text-xs', sm: 'h-8 w-8 text-xs', md: 'h-10 w-10 text-sm', lg: 'h-12 w-12 text-base', xl: 'h-16 w-16 text-lg' }
                     const dotSizes = { xs: 'h-1.5 w-1.5', sm: 'h-2 w-2', md: 'h-2.5 w-2.5', lg: 'h-3 w-3', xl: 'h-3.5 w-3.5' }
+                    const safeName = name || '';
 
-                    const initials = name
+                    const initials = safeName
                         .split(' ')
                         .slice(0, 2)
                         .map((w) => w[0]?.toUpperCase() ?? '')

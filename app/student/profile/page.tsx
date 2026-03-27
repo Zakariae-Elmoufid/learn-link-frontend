@@ -364,7 +364,7 @@ export default function ProfilePage() {
           <Button
             type="button"
             variant="outline"
-            onClick={() => router.push("/dashboard")}
+            onClick={() => router.push("/student")}
           >
             Cancel
           </Button>

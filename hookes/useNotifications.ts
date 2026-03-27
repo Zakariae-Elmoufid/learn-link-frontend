@@ -13,8 +13,8 @@ import { useAuthStore } from "../stores";
 const DEFAULT_WS_URL = "http://localhost:8081/chat";
 
 function toStompWsUrl(rawUrl: string): string {
-  if (rawUrl.startsWith("http://")) return rawUrl.replace("http://", "chat://");
-  if (rawUrl.startsWith("https://")) return rawUrl.replace("https://", "chat://");
+  if (rawUrl.startsWith("http://")) return rawUrl.replace("http://", "ws://");
+  if (rawUrl.startsWith("https://")) return rawUrl.replace("https://", "wss://");
   return rawUrl;
 }
 

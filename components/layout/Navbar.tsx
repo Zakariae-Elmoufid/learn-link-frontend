@@ -87,7 +87,6 @@ export function Navbar({ onMenuClick }: NavbarProps) {
         }
 
         setShowNotifications(false)
-        router.push(targetLink)
     }
 
     const badgeLabel = unreadCount > 99 ? '99+' : String(unreadCount)

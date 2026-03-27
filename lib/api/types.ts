@@ -303,6 +303,8 @@ export interface UpdatePostRequest {
 export interface PostResponse {
   id: number;
   userId: number;
+  username: string;
+  profilePictureUrl?: string;
   title: string;
   content: string;
   type: PostType;
@@ -328,6 +330,8 @@ export interface PostCommentResponse {
   postId: number | null;
   answerId: number | null;
   userId: number;
+  username: string;
+  profilePictureUrl?: string;
   content: string;
   likesCount: number;
   createdAt: string;
@@ -358,6 +362,8 @@ export interface AnswerResponse {
   id: number;
   questionId: number;
   userId: number;
+  username: string;
+  profilePictureUrl?: string;
   content: string;
   voteCount: number;
   upvoteCount: number;
@@ -371,6 +377,8 @@ export interface AnswerResponse {
 export interface QuestionResponse {
   id: number;
   userId: number;
+  username: string;
+  profilePictureUrl?: string;
   title: string;
   content: string;
   viewCount: number;
