@@ -38,10 +38,16 @@ export default function MessagesPage() {
   } = useMessageStore();
 
   // Initialize WebSocket connection
-  const { sendMessage: sendWebSocketMessage, isConnected, setTyping } = useWebSocket();
+  const {
+    sendMessage: sendWebSocketMessage,
+    isConnected,
+    setTyping,
+  } = useWebSocket();
 
-  const typingUsers = useMessageStore(s => s.typingUsers);
-  const isOtherUserTyping = activeConversationId ? typingUsers.has(activeConversationId) : false;
+  const typingUsers = useMessageStore((s) => s.typingUsers);
+  const isOtherUserTyping = activeConversationId
+    ? typingUsers.has(activeConversationId)
+    : false;
 
   const handleTyping = (isTyping: boolean) => {
     if (isConnected && activeConversationId) {
@@ -51,13 +57,22 @@ export default function MessagesPage() {
 
   // Debug: Log only after mount (avoid hydration issues)
   useEffect(() => {
-    console.log("[MessagesPage] Current user:", user)
-    console.log("[MessagesPage] User ID:", user?.id)
-    console.log("[MessagesPage] Messages count:", messages.length)
-    console.log("[MessagesPage] Active conversation:", activeConversationId)
-    console.log("[MessagesPage] Pending conversation user:", pendingConversationUser)
-    console.log("[MessagesPage] WebSocket connected:", isConnected)
-  }, [user, messages.length, activeConversationId, pendingConversationUser, isConnected])
+    console.log("[MessagesPage] Current user:", user);
+    console.log("[MessagesPage] User ID:", user?.id);
+    console.log("[MessagesPage] Messages count:", messages.length);
+    console.log("[MessagesPage] Active conversation:", activeConversationId);
+    console.log(
+      "[MessagesPage] Pending conversation user:",
+      pendingConversationUser,
+    );
+    console.log("[MessagesPage] WebSocket connected:", isConnected);
+  }, [
+    user,
+    messages.length,
+    activeConversationId,
+    pendingConversationUser,
+    isConnected,
+  ]);
 
   // Queries
   const { isLoading: conversationsLoading } = useConversations();
@@ -78,20 +93,29 @@ export default function MessagesPage() {
   // Clear pending conversation user when switching to an existing conversation
   useEffect(() => {
     if (activeConversationId) {
-      const existingConversation = conversations.find(c => c.participantId === activeConversationId);
+      const existingConversation = conversations.find(
+        (c) => c.participantId === activeConversationId,
+      );
       if (existingConversation && pendingConversationUser) {
         setPendingConversationUser(null);
       }
     }
-  }, [activeConversationId, conversations, pendingConversationUser, setPendingConversationUser]);
+  }, [
+    activeConversationId,
+    conversations,
+    pendingConversationUser,
+    setPendingConversationUser,
+  ]);
 
   // Get active conversation details
   const existingConversation =
     conversations.find((c) => c.participantId === activeConversationId) || null;
 
   // Create virtual conversation from pending user if no existing conversation
-  const activeConversation: ConversationResponse | null = existingConversation || (
-    pendingConversationUser && activeConversationId === pendingConversationUser.id
+  const activeConversation: ConversationResponse | null =
+    existingConversation ||
+    (pendingConversationUser &&
+    activeConversationId === pendingConversationUser.id
       ? {
           participantId: pendingConversationUser.id,
           participant: {
@@ -101,12 +125,11 @@ export default function MessagesPage() {
             profilePictureUrl: pendingConversationUser.profilePictureUrl,
           } as any,
           participantAvatar: pendingConversationUser.profilePictureUrl,
-          lastMessage: '',
+          lastMessage: "",
           lastMessageAt: new Date().toISOString(),
           unreadCount: 0,
         }
-      : null
-  );
+      : null);
 
   // Mark conversation as read when selected or when new messages arrive
   useEffect(() => {
@@ -122,7 +145,10 @@ export default function MessagesPage() {
   const handleSelectConversation = (participantId: number) => {
     setActiveConversation(participantId);
     // Clear pending user if selecting a different conversation
-    if (pendingConversationUser && pendingConversationUser.id !== participantId) {
+    if (
+      pendingConversationUser &&
+      pendingConversationUser.id !== participantId
+    ) {
       setPendingConversationUser(null);
     }
   };
@@ -131,7 +157,11 @@ export default function MessagesPage() {
     if (!activeConversationId) return;
 
     // If this is a new conversation (from pending user), add it to conversations list
-    if (pendingConversationUser && !existingConversation && activeConversation) {
+    if (
+      pendingConversationUser &&
+      !existingConversation &&
+      activeConversation
+    ) {
       addConversation({
         ...activeConversation,
         lastMessage: content,
@@ -171,8 +201,6 @@ export default function MessagesPage() {
     // Navigate to connections page (cast to any to bypass type checking for non-existent routes)
     window.location.href = "/student/connections";
   };
-
-
 
   // Mobile responsive state
   const [showChat, setShowChat] = useState(false);
@@ -231,9 +259,7 @@ export default function MessagesPage() {
             onBack={handleBackToList}
           />
         ) : (
-          <MessagingEmptyState
-            onFindPartners={handleFindPartners}
-          />
+          <MessagingEmptyState onFindPartners={handleFindPartners} />
         )}
       </div>
 

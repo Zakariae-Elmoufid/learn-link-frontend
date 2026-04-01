@@ -5,6 +5,8 @@ import Cookies from 'js-cookie'
 
 
 export const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:8081/api'
+
+
 const ACCESS_TOKEN_KEY = 'access_token'
 const REFRESH_TOKEN_KEY = 'refresh_token'
 
@@ -35,7 +37,10 @@ apiClient.interceptors.request.use((config: InternalAxiosRequestConfig) => {
 })
 
 let isRefreshing = false
-let failedQueue: Array<{ resolve: (value: unknown) => void; reject: (reason?: unknown) => void }> = []
+let failedQueue: Array<{
+    resolve: (value: unknown) => void;
+    reject: (reason?: unknown) => void
+    }> = []
 
 function processQueue(error: AxiosError | null, token: string | null = null) {
     failedQueue.forEach(({ resolve, reject }) => {
@@ -47,7 +52,7 @@ function processQueue(error: AxiosError | null, token: string | null = null) {
 apiClient.interceptors.response.use(
     (response ) => response,
     async (error: AxiosError) => {
-        const original = error.config as InternalAxiosRequestConfig & { _retry?: boolean }
+            const original = error.config as InternalAxiosRequestConfig & { _retry?: boolean }
         if (error.response?.status === 401 && !original._retry) {
             if (isRefreshing) {
                 return new Promise((resolve, reject) => {

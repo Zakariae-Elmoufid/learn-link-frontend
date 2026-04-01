@@ -4,7 +4,6 @@ import {
     UpdatePostRequest,
     PostResponse,
     PostCategory,
-    PostType,
     PageResponse,
     PostSearchParams,
 } from '../types'

@@ -56,10 +56,7 @@ export const createWebSocketClient = (token?: string): Client => {
         reconnectDelay: 5000,
 
 
-        debug: (str) => {
-            // Always log for debugging
-            console.log("WS:", str)
-        },
+
 
         onConnect: () => {
             console.log("WebSocket connected successfully")

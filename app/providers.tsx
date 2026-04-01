@@ -30,7 +30,7 @@ export function Providers({ children }: { children: React.ReactNode }) {
                 {children}
             </AuthInitializer>
             <Toaster toastOptions={{ duration: 6000 }}
-                     position="top-right"
+                     position="top-center"
                     />
         </QueryClientProvider>
     )
